@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Director - Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="shared-styles.css">
+    <link rel="stylesheet" href="animations.css">
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="hod.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-back">← Back to Home</a>
+        <h1 class="nav-title">Director Panel</h1>
+        <div></div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<header class="hero-section">
+    <img class="hero-banner" src="./hero-banner.png" alt="Institute Banner">
+</header>
+
+<section class="hero-text">
+    <h1>Institute Administration</h1>
+    <p>Leadership & Institutional Monitoring</p>
+</section>
+
+<!-- Main Content -->
+<main class="container">
+
+    <!-- Principal Profile -->
+    <section class="profile-section">
+        <div class="profile-card">
+            <img src="./principal.jpg" alt="Principal" class="profile-image">
+            <div class="profile-info">
+                <h2>Dr. Pramod D. Patil</h2>
+                <p class="title">Director</p>
+                <p class="department">NMIET Institute</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Institute Stats -->
+    <section class="stats-section">
+        <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <h3>Departments</h3>
+            <p class="stat-number">18</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🎓</div>
+            <h3>Total Students</h3>
+            <p class="stat-number">850</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">👨‍🏫</div>
+            <h3>Faculty Members</h3>
+            <p class="stat-number">65</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <h3>Overall Attendance</h3>
+            <p class="stat-number">82%</p>
+        </div>
+    </section>
+
+    <!-- Quick Access -->
+    <section class="quick-access">
+        <h2>Quick Access</h2>
+
+        <div class="access-buttons">
+
+            <a href="hod1.html" class="access-btn faculty-btn">
+                <span class="btn-icon">🏛</span>
+                <div class="btn-text">
+                    <strong>Manage Departments</strong>
+                    <p>Add or monitor departments</p>
+                </div>
+            </a>
+
+            <a href="#" class="access-btn student-btn">
+                <span class="btn-icon">👥</span>
+                <div class="btn-text">
+                    <strong>Faculty Monitoring</strong>
+                    <p>Track faculty performance</p>
+                </div>
+            </a>
+
+            <a href="#" class="access-btn reports-btn">
+                <span class="btn-icon">📚</span>
+                <div class="btn-text">
+                    <strong>Student Reports</strong>
+                    <p>View academic performance</p>
+                </div>
+            </a>
+
+            <!-- 📢 Publish Notice Added -->
+            <a href="#" class="access-btn settings-btn">
+                <span class="btn-icon">📢</span>
+                <div class="btn-text">
+                    <strong>Publish Notice</strong>
+                    <p>Send announcements institute-wide</p>
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+
+    <div class="footer-top">
+        © Copyright 2026 |
+        <strong>NMIET Institute</strong> |
+        All Rights Reserved |
+        SEO & Web Design by Sandesh, Khushal & Vaishnavi
+    </div>
+
+    <div class="footer-bottom">
+        <p>Our Team</p>
+
+        <div class="team-social">
+
+            <div class="member">
+                <span>Sandesh Shingankar</span>
+                <a href="https://github.com/sandeshshingankar">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/sandeshs-shingankar/">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <button class="scroll-top" onclick="scrollToTop()">↑</button>
+</footer>
+
+<script src="scroll-to-top.js"></script>
+
+</body>
+</html>
