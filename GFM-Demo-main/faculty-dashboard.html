@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - IT Department</title>
+    <link rel="stylesheet" href="shared-styles.css">
+    <link rel="stylesheet" href="animations.css">
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="faculty-dashboard.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="js/faculty-dashboard.js"></script>
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="faculty.html" class="nav-back">← Back to Faculty</a>
+        <h1 class="nav-title">Faculty Dashboard</h1>
+        <div></div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+  <header class="hero-section">
+    <img class="hero-banner" src="hero-banner.png" alt="IT Department Banner">
+</header>
+
+<section class="hero-text">
+    <h1>Faculty Dashboard</h1>
+    <p>Empowering Education Through Technology</p>
+</section>
+
+<!-- Main Content -->
+<main class="container"  >
+    <!-- Faculty Profile Section -->
+    <!-- ===== FACULTY PROFILE ===== -->
+<section class="faculty-profile-section"> 
+    <div id="messageBox" style="display:none; margin-top:20px; background:#fff; padding:20px; border:1px solid #ccc;">
+  
+  <h3>Send Message</h3>
+
+  <label>Send To:</label>
+  <select id="messageTo">
+    <option value="students">Students</option>
+    <option value="parents">Parents</option>
+  </select>
+  <br><br>
+
+  <label>Message:</label><br>
+  <textarea id="messageText" rows="4" cols="40"></textarea>
+  <br><br>
+
+  <button onclick="sendMessage()">Send</button>
+  <button class="action-btn edit-btn" onclick="openAnnouncementBox()">
+    📢 Announcement
+</button>
+
+</div>
+
+    <div id="editProfileModal" style="display:none; padding:20px; background:#fff; border:1px solid #ccc;">
+  <h3>Edit Faculty Profile</h3>
+
+  <label>Name:</label>
+  <input type="text" id="editName"><br><br>
+
+  <label>Department:</label>
+  <input type="text" id="editDept"><br><br>
+
+  <button onclick="saveProfile()">Save</button>
+</div>
+
+
+    <div class="faculty-profile-card">
+
+        <img src="faculty.jpg"
+             alt="Faculty Profile"
+             class="faculty-profile-image">
+
+        <div class="faculty-profile-info">
+            <h2>Prof. Nitin Wankhade</h2>
+            <p class="designation">Assistant Professor – IT Department</p>
+
+            <div class="faculty-detail-item">
+                <strong>Email</strong>
+                nitin.wankhade@nmiet.edu.in
+            </div>
+
+            <div class="faculty-detail-item">
+                <strong>Contact</strong>
+                +91 9876543210
+            </div>
+
+            <div class="faculty-detail-item">
+                <strong>Qualification</strong>
+                M.Tech (Computer Engineering)
+            </div>
+
+            <div class="faculty-detail-item">
+                <strong>Experience</strong>
+                8 Years
+            </div>
+
+            <div class="faculty-actions">
+                <a href="#" class="action-btn btn-edit">Edit Profile</a>
+                <a href="#" class="action-btn btn-message">Message Students</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+    <!-- Students Section -->
+    <section class="students-section">
+        <div class="section-header">
+            <a href="student.html" class="table-action-btn btn-view">View</a>
+            <h2>Assigned Students</h2>
+            <p>View and manage all students assigned to this faculty member</p>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-bar-container">
+            <input 
+                type="text" 
+                id="search-input" 
+                class="search-input" 
+                placeholder="Search by name, roll number, or email..."
+                aria-label="Search students"
+            >
+            <button class="search-btn" aria-label="Search">
+                <span>🔍</span>
+            </button>
+        </div>
+
+        <!-- Students Table -->
+        <div class="table-container">
+            <table class="students-table" role="table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Roll Number</th>
+                        <th>Class/Division</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="students-tbody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="no-results" class="no-results" style="display: none;">
+            <p>No students found matching your search.</p>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+
+    <div class="footer-top">
+        © Copyright 2026 |
+        <strong>NMIET Institute</strong> |
+        All Rights Reserved |
+        SEO & Web Design by Sandesh, Khushal & Vaishnavi
+    </div>
+
+    <div class="footer-bottom">
+        <p>Our Team</p>
+
+        <div class="team-social">
+
+            <div class="member">
+                <span>Sandesh Shingankar</span>
+                <a href="https://github.com/sandeshshingankar" title="GitHub" aria-label="Sandesh's GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/sandeshs-shingankar/" title="LinkedIn" aria-label="Sandesh's LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+
+            <div class="member">
+                <span>Khushal Warule</span>
+                <a href="https://github.com/KhushalWarule" title="GitHub" aria-label="Khushal's GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/khushal-warule-781329292" title="LinkedIn" aria-label="Khushal's LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+
+            <div class="member">
+                <span>Vaishnavi Kadganchi</span>
+                <a href="https://github.com/vaishnavikadganchi" title="GitHub" aria-label="Vaishnavi's GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="www.linkedin.com/in/vaishnavi-kadganchi" title="LinkedIn" aria-label="Vaishnavi's LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <button class="scroll-top" onclick="scrollToTop()" aria-label="Scroll to top">↑</button>
+</footer>
+
+<script src="faculty-dashboard.js"></script>
+<script src="scroll-to-top.js"></script>
+<!-- EDIT STUDENT MODAL -->
+<div id="editStudentModal" style="display:none;" class="modal">
+    <h3>Edit Student</h3>
+
+    <label>Name</label>
+    <input type="text" id="editStudentName">
+
+    <label>Roll No</label>
+    <input type="text" id="editStudentRoll">
+
+    <label>Email</label>
+    <input type="text" id="editStudentEmail">
+
+    <br><br>
+    <button onclick="saveStudentEdit()">Save</button>
+    <button onclick="closeEditModal()">Cancel</button>
+</div>
+<!-- Announcement Box -->
+<div id="announcementBox" style="display:none;" class="popup-box">
+    <h3>Send Announcement</h3>
+
+    <textarea id="announcementText"
+        placeholder="Type announcement here..."
+        rows="4"
+        style="width:100%;"></textarea>
+
+    <br><br>
+
+    <button onclick="sendAnnouncement()">Send</button>
+    <button onclick="closeAnnouncementBox()">Cancel</button>
+
+    <p id="announcementOutput" style="color:green;margin-top:10px;"></p>
+</div>
+
+</body>
+</html>
