@@ -6,7 +6,7 @@ const DEMO_CREDENTIALS = {
     faculty: { email: 'faculty@nmiet.edu.in', password: 'faculty123' },
     student: { email: 'student@nmiet.edu.in', password: 'student123' },
     parent: { email: 'parent@nmiet.edu.in', password: 'parent123' },
-    principal: { email: 'principal@nmiet.edu.in', password: 'principal123' },
+    principal: { email: 'Director@nmiet.edu.in', password: 'Director123' },
 
 };
 
@@ -271,6 +271,7 @@ function handleCreateAccount(e) {
         "Please contact the IT Department for registration."
     );
 }
+
 
 
 
