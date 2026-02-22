@@ -16,7 +16,7 @@ const ROLE_PAGES = {
     faculty: 'faculty-dashboard.html',
     student: 'student.html',
     parent: 'parent.html',
-    principal: 'principal.html'
+    principal: 'Director.html'
 
 };
 
@@ -68,7 +68,7 @@ cardLinks.forEach(card => {
     card.addEventListener('click', (e) => {
 
         // If Principal card → allow directly
-        if (card.getAttribute('href') === 'principal.html') {
+        if (card.getAttribute('href') === 'Director.html') {
             return;
         }
 
@@ -95,7 +95,7 @@ cardLinks.forEach(card => {
 function attachRoleCardListeners() {
 
     // ---- ADMIN / STUDENT / PARENT cards ----
-    const roles = ['admin', 'faculty', 'student', 'parent', 'principal'];
+    const roles = ['admin', 'faculty', 'student', 'parent', 'Director'];
 
     roles.forEach(role => {
         const cardLink = document.querySelector(`a[href="${ROLE_PAGES[role]}"]`);
@@ -271,6 +271,7 @@ function handleCreateAccount(e) {
         "Please contact the IT Department for registration."
     );
 }
+
 
 
 
