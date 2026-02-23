@@ -29,9 +29,38 @@ document.addEventListener('DOMContentLoaded', function () {
     // ================= GLOBAL CLICK HANDLER =================
     document.addEventListener('click', function (e) {
 
+        document.addEventListener('DOMContentLoaded', function () {
+
+    // ================= SELECTORS =================
+    const profileCard = document.querySelector('.profile-card');
+    const nameField = document.querySelector('.profile-info h2');
+    const titleField = document.querySelector('.profile-info .title');
+    const deptField = document.querySelector('.profile-info .department');
+
+    const editModal = document.getElementById('editModal');
+    const deleteModal = document.getElementById('deleteModal');
+    const editForm = document.getElementById('editForm');
+
+    // ================= LOAD SAVED DATA =================
+    const savedData = JSON.parse(localStorage.getItem('directorData'));
+    const isDeleted = localStorage.getItem('directorDeleted');
+
+    if (savedData) {
+        nameField.textContent = savedData.name;
+        titleField.textContent = savedData.title;
+        deptField.textContent = savedData.department;
+    }
+
+    if (isDeleted === 'true') {
+        profileCard.style.display = 'none';
+    }
+
+    // ================= GLOBAL CLICK HANDLER =================
+    document.addEventListener('click', function (e) {
+
         // ===== OPEN EDIT =====
         if (e.target.classList.contains('edit-btn')) {
-            editModal.style.display = 'block';
+            editModal.style.display = 'flex';
 
             document.getElementById('editName').value = nameField.textContent;
             document.getElementById('editTitle').value = titleField.textContent;
@@ -45,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // ===== OPEN DELETE =====
         if (e.target.classList.contains('delete-btn')) {
-            deleteModal.style.display = 'block';
+            deleteModal.style.display = 'flex';
         }
 
         // ===== CLOSE DELETE =====
@@ -88,8 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-// ================= QUICK ACCESS =================
-
+// ================= QUICK ACCESS PANEL SWITCH =================
 function openPanel(panelId) {
 
     const panels = document.querySelectorAll('.dynamic-panel');
@@ -98,17 +126,20 @@ function openPanel(panelId) {
         panel.style.display = 'none';
     });
 
-    document.getElementById(panelId).style.display = 'block';
+    const selectedPanel = document.getElementById(panelId);
+    if (selectedPanel) {
+        selectedPanel.style.display = 'block';
+    }
 }
 
 
 // ================= DEPARTMENTS =================
-
 function addDepartment() {
 
     const deptInput = document.getElementById('newDept');
-    const deptName = deptInput.value.trim();
+    if (!deptInput) return;
 
+    const deptName = deptInput.value.trim();
     if (!deptName) return;
 
     let departments = JSON.parse(localStorage.getItem('departments')) || [];
@@ -123,6 +154,8 @@ function addDepartment() {
 function loadDepartments() {
 
     const deptList = document.getElementById('deptList');
+    if (!deptList) return;
+
     deptList.innerHTML = '';
 
     let departments = JSON.parse(localStorage.getItem('departments')) || [];
@@ -137,11 +170,13 @@ function loadDepartments() {
 document.addEventListener('DOMContentLoaded', loadDepartments);
 
 
-// ================= NOTICE =================
-
+// ================= NOTICE SYSTEM =================
 function publishNotice() {
 
-    const noticeText = document.getElementById('noticeText').value.trim();
+    const noticeInput = document.getElementById('noticeText');
+    if (!noticeInput) return;
+
+    const noticeText = noticeInput.value.trim();
     if (!noticeText) return;
 
     let notices = JSON.parse(localStorage.getItem('notices')) || [];
@@ -149,13 +184,15 @@ function publishNotice() {
 
     localStorage.setItem('notices', JSON.stringify(notices));
 
-    document.getElementById('noticeText').value = '';
+    noticeInput.value = '';
     loadNotices();
 }
 
 function loadNotices() {
 
     const noticeList = document.getElementById('noticeList');
+    if (!noticeList) return;
+
     noticeList.innerHTML = '';
 
     let notices = JSON.parse(localStorage.getItem('notices')) || [];
@@ -170,18 +207,19 @@ function loadNotices() {
 document.addEventListener('DOMContentLoaded', loadNotices);
 
 
-// ================= SETTINGS (Dark Mode) =================
-
+// ================= DARK MODE =================
 document.addEventListener('DOMContentLoaded', function () {
 
     const toggle = document.getElementById('darkModeToggle');
+
+    if (!toggle) return;
 
     if (localStorage.getItem('darkMode') === 'enabled') {
         document.body.classList.add('dark-mode');
         toggle.checked = true;
     }
 
-    toggle?.addEventListener('change', function () {
+    toggle.addEventListener('change', function () {
 
         if (this.checked) {
             document.body.classList.add('dark-mode');
@@ -192,5 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
     });
+
+});
 
 });
