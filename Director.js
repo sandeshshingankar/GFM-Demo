@@ -1,66 +1,6 @@
-document.addEventListener('DOMContentLoaded', function () {
-
-    // ================= LOAD SAVED DATA =================
-    loadDepartments();
-    loadNotices();
-
-    const profileCard = document.querySelector('.profile-card');
-    const nameField = document.querySelector('.profile-info h2');
-    const titleField = document.querySelector('.title');
-    const deptField = document.querySelector('.department');
-
-    const editModal = document.getElementById('editModal');
-    const deleteModal = document.getElementById('deleteModal');
-
-    const editForm = document.getElementById('editForm');
-
-    // ===== LOAD SAVED PROFILE =====
-    const savedData = JSON.parse(localStorage.getItem('directorData'));
-    if (savedData) {
-        nameField.textContent = savedData.name;
-        titleField.textContent = savedData.title;
-        deptField.textContent = savedData.department;
-    }
-
-    if (localStorage.getItem('directorDeleted') === 'true') {
-        profileCard.style.display = 'none';
-    }
-
-    // ================= GLOBAL CLICK HANDLER =================
-    document.addEventListener('click', function (e) {
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-    // ================= SELECTORS =================
-    const profileCard = document.querySelector('.profile-card');
-    const nameField = document.querySelector('.profile-info h2');
-    const titleField = document.querySelector('.profile-info .title');
-    const deptField = document.querySelector('.profile-info .department');
-
-    const editModal = document.getElementById('editModal');
-    const deleteModal = document.getElementById('deleteModal');
-    const editForm = document.getElementById('editForm');
-
-    // ================= LOAD SAVED DATA =================
-    const savedData = JSON.parse(localStorage.getItem('directorData'));
-    const isDeleted = localStorage.getItem('directorDeleted');
-
-    if (savedData) {
-        nameField.textContent = savedData.name;
-        titleField.textContent = savedData.title;
-        deptField.textContent = savedData.department;
-    }
-
-    if (isDeleted === 'true') {
-        profileCard.style.display = 'none';
-    }
-
-    // ================= GLOBAL CLICK HANDLER =================
-    document.addEventListener('click', function (e) {
-
-        // ===== OPEN EDIT =====
+// ===== OPEN EDIT =====
         if (e.target.classList.contains('edit-btn')) {
-            editModal.style.display = 'flex';
+            editModal.style.display = 'block';
 
             document.getElementById('editName').value = nameField.textContent;
             document.getElementById('editTitle').value = titleField.textContent;
@@ -74,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // ===== OPEN DELETE =====
         if (e.target.classList.contains('delete-btn')) {
-            deleteModal.style.display = 'flex';
+            deleteModal.style.display = 'block';
         }
 
         // ===== CLOSE DELETE =====
@@ -117,7 +57,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-// ================= QUICK ACCESS PANEL SWITCH =================
+// ================= QUICK ACCESS =================
+
 function openPanel(panelId) {
 
     const panels = document.querySelectorAll('.dynamic-panel');
@@ -126,20 +67,17 @@ function openPanel(panelId) {
         panel.style.display = 'none';
     });
 
-    const selectedPanel = document.getElementById(panelId);
-    if (selectedPanel) {
-        selectedPanel.style.display = 'block';
-    }
+    document.getElementById(panelId).style.display = 'block';
 }
 
 
 // ================= DEPARTMENTS =================
+
 function addDepartment() {
 
     const deptInput = document.getElementById('newDept');
-    if (!deptInput) return;
-
     const deptName = deptInput.value.trim();
+
     if (!deptName) return;
 
     let departments = JSON.parse(localStorage.getItem('departments')) || [];
@@ -154,8 +92,6 @@ function addDepartment() {
 function loadDepartments() {
 
     const deptList = document.getElementById('deptList');
-    if (!deptList) return;
-
     deptList.innerHTML = '';
 
     let departments = JSON.parse(localStorage.getItem('departments')) || [];
@@ -170,13 +106,11 @@ function loadDepartments() {
 document.addEventListener('DOMContentLoaded', loadDepartments);
 
 
-// ================= NOTICE SYSTEM =================
+// ================= NOTICE =================
+
 function publishNotice() {
 
-    const noticeInput = document.getElementById('noticeText');
-    if (!noticeInput) return;
-
-    const noticeText = noticeInput.value.trim();
+    const noticeText = document.getElementById('noticeText').value.trim();
     if (!noticeText) return;
 
     let notices = JSON.parse(localStorage.getItem('notices')) || [];
@@ -184,15 +118,13 @@ function publishNotice() {
 
     localStorage.setItem('notices', JSON.stringify(notices));
 
-    noticeInput.value = '';
+    document.getElementById('noticeText').value = '';
     loadNotices();
 }
 
 function loadNotices() {
 
     const noticeList = document.getElementById('noticeList');
-    if (!noticeList) return;
-
     noticeList.innerHTML = '';
 
     let notices = JSON.parse(localStorage.getItem('notices')) || [];
@@ -207,19 +139,18 @@ function loadNotices() {
 document.addEventListener('DOMContentLoaded', loadNotices);
 
 
-// ================= DARK MODE =================
+// ================= SETTINGS (Dark Mode) =================
+
 document.addEventListener('DOMContentLoaded', function () {
 
     const toggle = document.getElementById('darkModeToggle');
-
-    if (!toggle) return;
 
     if (localStorage.getItem('darkMode') === 'enabled') {
         document.body.classList.add('dark-mode');
         toggle.checked = true;
     }
 
-    toggle.addEventListener('change', function () {
+    toggle?.addEventListener('change', function () {
 
         if (this.checked) {
             document.body.classList.add('dark-mode');
@@ -229,8 +160,4 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.setItem('darkMode', 'disabled');
         }
 
-    });
-
-});
-
-});
+    });  mi tula old Director.js dili ahe atyatil all feturs pahije ahe ani kahi tu jo dila ahe to code add kr
