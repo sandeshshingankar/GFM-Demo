@@ -53,12 +53,14 @@
                      class="profile-image">
 
                 <div class="profile-details">
-                    <h2 class="student-name">Sandesh Shingankar</h2>
+                    <h2 id="studentName" class="student-name">Student Name</h2>
+
 
                     <div class="profile-info-grid">
                         <div class="info-item">
                             <span class="info-label">Class:</span>
-                            <span class="info-value">TEITA 70</span>
+                            <span id="studentRoll" class="info-value">Roll</span>
+
                         </div>
 
                         <div class="info-item">
@@ -68,7 +70,8 @@
 
                         <div class="info-item">
                             <span class="info-label">Email:</span>
-                            <span class="info-value">sandeshshingankar@gmail.com</span>
+                            <span id="studentEmail" class="info-value">Email</span>
+
                         </div>
 
                         <div class="info-item">
@@ -94,14 +97,26 @@
             <div class="profile-actions">
                 <button class="action-btn edit-btn">Edit</button>
                 <button class="action-btn delete-btn">Delete</button>
-                <button class="action-btn delete-btn">Upload Documents</button>
+                <button class="action-btn upload-btn">Upload Documents</button>
+                <button class="action-btn delete-btn" onclick="openDocumentUpload()">
+    Add Document
+</button>
+<input type="file" id="documentInput" style="display:none" />
+<p id="documentName" style="margin-top:10px;color:green;"></p>
+
             </div>
     </section>
 
     <!-- ================= EXPANDABLE SECTIONS ================= -->
     <section class="expandable-sections">
 
-        <!-- Student Details -->
+        <!-- Student Details --> 
+         <h2>Student Profile</h2>
+
+<p><strong>Name:</strong> <span id="studentName"></span></p>
+<p><strong>Roll No:</strong> <span id="studentRoll"></span></p>
+<p><strong>Email:</strong> <span id="studentEmail"></span></p>
+
         <div class="expandable-section">
             <button class="expand-btn" aria-expanded="false" aria-controls="student-details">
                 <span class="btn-icon">👤</span>
@@ -167,21 +182,26 @@
             <div class="expand-content" id="attendance-overview">
                 <div class="content-wrapper">
                     <div class="attendance-stats">
+                        <div style="margin-top:20px;">
+    <button id="presentBtn" class="action-btn edit-btn">Mark Present</button>
+    <button id="absentBtn" class="action-btn delete-btn">Mark Absent</button>
+</div>
+
                         <div class="stat-box">
                             <div class="stat-label">Total Classes</div>
-                            <div class="stat-value">75</div>
+                            <div id="totalClasses" class="stat-value">75</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Present</div>
-                            <div class="stat-value present">72</div>
+                            <div id="presentCount" class="stat-value present">72</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Absent</div>
-                            <div class="stat-value absent">3</div>
+                            <div id="absentCount" class="stat-value absent">3</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Attendance %</div>
-                            <div class="stat-value percentage">96%</div>
+                            <div id="attendancePercent" class="stat-value percentage">96%</div>
                         </div>
                     </div>
                     <div class="attendance-note">
@@ -202,7 +222,14 @@
                 <div class="content-wrapper">
                     <div class="semester-results">
                         <h3>Semester Results</h3>
-                        <div class="marks-table">
+                        <div style="margin-bottom:20px;">
+    <input type="text" id="subjectInput" placeholder="Subject Name">
+    <input type="number" id="marksInput" placeholder="Marks">
+    <input type="text" id="gradeInput" placeholder="Grade">
+    <button id="addMarksBtn" class="action-btn edit-btn">Add Marks</button>
+</div>
+
+                        <div class="marks-table" id="marksTable">
                             <div class="marks-header">
                                 <div class="marks-col">Subject</div>
                                 <div class="marks-col">Marks</div>
@@ -413,5 +440,18 @@
 
 <script src="student.js"></script>
 <script src="scroll-to-top.js"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    document.getElementById("studentName").textContent = params.get("name");
+    document.getElementById("studentRoll").textContent = params.get("roll");
+    document.getElementById("studentEmail").textContent = params.get("email");
+
+    document.getElementById("profileStudentName").textContent = params.get("name");
+    document.getElementById("profileStudentRoll").textContent = params.get("roll");
+    document.getElementById("profileStudentEmail").textContent = params.get("email");
+</script>
+
+
 </body>
 </html>
