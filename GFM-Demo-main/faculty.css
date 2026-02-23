@@ -409,3 +409,34 @@
         padding: 40px 20px;
     }
 }
+.hod-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.edit-hod-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-hod-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.edit-hod-btn:hover {
+    background: #1e40af;
+}
+
+.delete-hod-btn:hover {
+    background: #b91c1c;
+}
