@@ -341,3 +341,31 @@
     font-size: 22px;
     cursor: pointer;
 }
+/* Delete Confirm Buttons */
+.delete-confirm-btn {
+    background-color: #ef4444;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    flex: 1;
+    cursor: pointer;
+}
+
+.delete-confirm-btn:hover {
+    background-color: #dc2626;
+}
+
+.cancel-btn {
+    background-color: #9ca3af;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    flex: 1;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background-color: #6b7280;
+}
