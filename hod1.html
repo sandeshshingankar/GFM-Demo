@@ -214,8 +214,9 @@
             <label>Department</label>
             <input type="text" id="newHodDept" required>
 
-            <label>Image URL (optional)</label>
-            <input type="text" id="newHodImage">
+            <label>Choose Image</label>
+            <input type="file" id="newHodImage" accept="image/*">
+            <img id="imagePreview" style="width:80px; margin-top:10px; display:none;">
 
             <button type="submit" class="save-btn">Add HOD</button>
         </form>
