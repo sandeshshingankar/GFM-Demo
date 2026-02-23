@@ -135,14 +135,14 @@
             </div>
         </div>
 
-        <!--  Monitoring -->
-         <a href="#settings" class="access-btn settings-btn">
-                <span class="btn-icon">⚙️</span>
-                <div class="btn-text">
-                    <strong>Settings</strong>
-                    <p>Configure system settings</p>
-                </div>
-            </a>
+        <!-- Settings -->
+        <div class="access-btn settings-btn" onclick="openPanel('settingsPanel')">
+            <span class="btn-icon">⚙️</span>
+            <div class="btn-text">
+                <strong>Settings</strong>
+                <p>Configure system settings</p>
+            </div>
+        </div>
 
         <!-- Student Reports -->
         <div class="access-btn reports-btn" onclick="openPanel('studentPanel')">
@@ -154,7 +154,7 @@
         </div>
 
         <!-- Publish Notice -->
-        <div class="access-btn settings-btn" onclick="openPanel('noticePanel')">
+        <div class="access-btn notice-btn" onclick="openPanel('noticePanel')">
             <span class="btn-icon">📢</span>
             <div class="btn-text">
                 <strong>Publish Notice</strong>
@@ -176,14 +176,18 @@
 </section>
 
 
-<section id="facultyPanel" class="dynamic-panel">
-    <h2>Faculty Monitoring</h2>
-    <p>Total Faculty: 65</p>
+<section id="settingsPanel" class="dynamic-panel">
+    <h2>Settings</h2>
+    <label>
+        <input type="checkbox" id="darkModeToggle">
+        Enable Dark Mode
+    </label>
 </section>
 
 
 <section id="studentPanel" class="dynamic-panel">
     <h2>Student Reports</h2>
+    <p>Total Students: 850</p>
     <p>Average CGPA: 8.2</p>
 </section>
 
@@ -194,7 +198,6 @@
     <button onclick="publishNotice()">Publish</button>
     <ul id="noticeList"></ul>
 </section>
-
 </main>
 
 <!-- Footer -->
