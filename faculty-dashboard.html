@@ -835,31 +835,62 @@ function initStudents() { initBatchUI(); }
 function renderStudents(list) {
     const tbody = document.getElementById('students-tbody');
     const noRes = document.getElementById('no-results');
-    if (!list.length) { tbody.innerHTML=''; noRes.style.display='block'; return; }
+    if (!list || !list.length) { tbody.innerHTML=''; noRes.style.display='block'; return; }
     noRes.style.display = 'none';
-    tbody.innerHTML = list.map((s,i) => `
+    tbody.innerHTML = list.map((s) => {
+        const qp = 'name='   + encodeURIComponent(s.name)
+                 + '&roll='    + encodeURIComponent(s.roll)
+                 + '&div='     + encodeURIComponent(s.div)
+                 + '&contact=' + encodeURIComponent(s.contact)
+                 + '&email='   + encodeURIComponent(s.email)
+                 + '&parent='  + encodeURIComponent(s.parent || '');
+        return `
         <tr>
-            <td>${s.name}</td>
+            <td><strong>${s.name}</strong></td>
             <td>${s.roll}</td>
             <td>${s.div}</td>
             <td>${s.contact}</td>
             <td>${s.email}</td>
-            <td style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;">
-                <button class="tbl-btn view" onclick="viewStudent(${i})"><i class="fas fa-eye"></i> View</button>
-                <button class="tbl-btn msg-s" onclick="openMsgModal('student','${s.email}','${s.name}')">
-                    <i class="fas fa-envelope"></i> Msg Student
-                </button>
-                <button class="tbl-btn msg-p" onclick="openMsgModal('parent','parent_${s.roll}@nmiet.edu.in','${s.parent||'Parent of '+s.name}')">
-                    <i class="fas fa-user-friends"></i> Msg Parent
-                </button>
+            <td>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0;">
+                    <button class="tbl-btn view"
+                            onclick="window.location.href='student.html?${qp}'"
+                            title="View student profile">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="tbl-btn msg-s"
+                            onclick="openMsgModal('student','${s.email}','${s.name}')">
+                        <i class="fas fa-envelope"></i> Msg Student
+                    </button>
+                    <button class="tbl-btn msg-p"
+                            onclick="openMsgModal('parent','parent_${s.roll}@nmiet.edu.in','${s.parent||'Parent of '+s.name}')">
+                        <i class="fas fa-user-friends"></i> Msg Parent
+                    </button>
+                    <button class="tbl-btn" style="background:#f3e8ff;color:#6b21a8;"
+                            onclick="openAttModal_('${s.roll}','${s.name}')">
+                        <i class="fas fa-clipboard-list"></i> Attendance
+                    </button>
+                    <button class="tbl-btn" style="background:#fef3c7;color:#92400e;"
+                            onclick="openAcadModal_('${s.roll}','${s.name}')">
+                        <i class="fas fa-chart-bar"></i> Academics
+                    </button>
+                </div>
             </td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
 }
 
-function viewStudent(i) {
-    const s = allStudents[i];
-    alert(`Student: ${s.name}\nRoll: ${s.roll} | Class: ${s.div}\nContact: ${s.contact}\nEmail: ${s.email}`);
+/* Attendance & Academics by roll number (avoids index issues) */
+function openAttModal_(roll, name) {
+    if (typeof window.openAttByRoll === 'function') { window.openAttByRoll(roll, name); return; }
+    // fallback: find index in allStudents
+    const idx = (window._allStudents||[]).findIndex(s => s.roll === roll);
+    if (idx >= 0 && typeof openAttModal !== 'undefined') openAttModal(idx);
+}
+function openAcadModal_(roll, name) {
+    if (typeof window.openAcadByRoll === 'function') { window.openAcadByRoll(roll, name); return; }
+    const idx = (window._allStudents||[]).findIndex(s => s.roll === roll);
+    if (idx >= 0 && typeof openAcadModal !== 'undefined') openAcadModal(idx);
 }
 
 /* ── Search — filters within the active batch ── */
