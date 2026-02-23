@@ -310,6 +310,43 @@
             <p>View and manage all students assigned to this faculty member</p>
         </div>
 
+        <!-- ── Batch Selector ── -->
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;">
+
+            <!-- Batch Type Toggle -->
+            <div style="display:flex;background:#f1f5f9;border-radius:10px;padding:4px;gap:4px;">
+                <button id="btnNewBatch" onclick="switchBatchType('new')"
+                    style="padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;
+                           cursor:pointer;transition:all .2s;background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3);">
+                    🎓 Current Batch
+                </button>
+                <button id="btnOldBatch" onclick="switchBatchType('old')"
+                    style="padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;
+                           cursor:pointer;transition:all .2s;background:transparent;color:#6b7280;">
+                    📁 Old Batch
+                </button>
+            </div>
+
+            <!-- Batch Dropdown -->
+            <div style="display:flex;align-items:center;gap:8px;">
+                <label style="font-size:13px;font-weight:600;color:#374151;">Batch:</label>
+                <select id="batchDropdown" onchange="onBatchChange()"
+                    style="padding:9px 36px 9px 14px;border:2px solid #d1d5db;border-radius:9px;
+                           font-size:13px;font-weight:600;color:#111827;background:#fff;
+                           cursor:pointer;outline:none;appearance:none;
+                           background-image:url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%232563eb\' stroke-width=\'2\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e');
+                           background-repeat:no-repeat;background-position:right 10px center;background-size:18px;">
+                </select>
+            </div>
+
+            <!-- Active Badge -->
+            <div id="batchBadge"
+                style="background:#dbeafe;color:#1e40af;padding:6px 14px;border-radius:20px;
+                       font-size:12px;font-weight:700;white-space:nowrap;">
+            </div>
+        </div>
+
+        <!-- Search -->
         <div class="search-bar-container">
             <input type="text" id="search-input" class="search-input"
                    placeholder="Search by name, roll number, or email..."
@@ -580,13 +617,142 @@ function defaultFaculty() {
     };
 }
 
-/* Default students */
-const DEFAULT_STUDENTS = [
-    { name:'Sandesh Shingankar',  roll:'70', div:'TY-IT A', contact:'8668916036', email:'sandesh@nmiet.edu.in', parent:'Ashok Shingankar' },
-    { name:'Khushal Warule',      roll:'45', div:'TY-IT A', contact:'9876543210', email:'khushal@nmiet.edu.in', parent:'Ramesh Warule'    },
-    { name:'Vaishnavi Kadganchi', roll:'32', div:'TY-IT B', contact:'9123456780', email:'vaishnavi@nmiet.edu.in', parent:'Sanjay Kadganchi' },
-    { name:'Tejas Naiknaware',    roll:'58', div:'TY-IT B', contact:'9988776655', email:'tejas@nmiet.edu.in',  parent:'Vijay Naiknaware' },
-];
+/* ── BATCH DATA ──────────────────────────────────────────
+   Structure:
+     BATCH_DATA[facultyKey].new  → current batches
+     BATCH_DATA[facultyKey].old  → old / passed-out batches
+   Each batch: { label, year, students: [...] }
+──────────────────────────────────────────────────────── */
+const BATCH_DATA = {
+    /* ── Default (used when no faculty key matches) ── */
+    _default: {
+        new: [
+            {
+                label: 'TE-IT-2027', year: '2027',
+                students: [
+                    { name:'Sandesh Shingankar',  roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com', parent:'Ashok Shingankar'    },
+                    { name:'Khushal Warule',      roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',  parent:'Shantaram Warule'   },
+                    { name:'Vaishnavi Kadganchi', roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com', parent:'Appasaheb Kadganchi'},
+                    { name:'Tejas Naiknaware',    roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',           parent:'Balasaheb Naiknaware'},
+                ]
+            },
+            {
+                label: 'SE-IT-2028', year: '2028',
+                students: [
+                    { name:'Amit Pawar',   roll:'11', div:'SE IT-A', contact:'9876500001', email:'amit.pawar@nmiet.edu.in',   parent:'Suresh Pawar'  },
+                    { name:'Priya Jadhav', roll:'22', div:'SE IT-B', contact:'9876500002', email:'priya.jadhav@nmiet.edu.in', parent:'Ravi Jadhav'   },
+                    { name:'Rohan More',   roll:'33', div:'SE IT-A', contact:'9876500003', email:'rohan.more@nmiet.edu.in',   parent:'Dilip More'    },
+                ]
+            },
+            {
+                label: 'BE-IT-2026', year: '2026',
+                students: [
+                    { name:'Sneha Kulkarni', roll:'51', div:'BE IT-A', contact:'9900001111', email:'sneha.kulkarni@nmiet.edu.in', parent:'Anand Kulkarni' },
+                    { name:'Raj Deshmukh',   roll:'62', div:'BE IT-B', contact:'9900002222', email:'raj.deshmukh@nmiet.edu.in',  parent:'Vijay Deshmukh' },
+                ]
+            },
+        ],
+        old: [
+            {
+                label: 'TE-IT-2024', year: '2024',
+                students: [
+                    { name:'Pooja Sharma',  roll:'41', div:'TE IT-A', contact:'9811001100', email:'pooja.sharma@alumni.nmiet.edu.in',  parent:'Mukesh Sharma'  },
+                    { name:'Kiran Patil',   roll:'52', div:'TE IT-B', contact:'9822002200', email:'kiran.patil@alumni.nmiet.edu.in',   parent:'Ganesh Patil'   },
+                    { name:'Nilesh Borse',  roll:'63', div:'TE IT-A', contact:'9833003300', email:'nilesh.borse@alumni.nmiet.edu.in',  parent:'Sunil Borse'    },
+                ]
+            },
+            {
+                label: 'TE-IT-2023', year: '2023',
+                students: [
+                    { name:'Sakshi Gaikwad', roll:'14', div:'TE IT-A', contact:'9844004400', email:'sakshi.gaikwad@alumni.nmiet.edu.in', parent:'Pramod Gaikwad' },
+                    { name:'Omkar Shinde',   roll:'25', div:'TE IT-B', contact:'9855005500', email:'omkar.shinde@alumni.nmiet.edu.in',   parent:'Santosh Shinde' },
+                ]
+            },
+        ]
+    }
+};
+
+/* Helper — get batch data for current faculty (falls back to _default) */
+function getBatchData() {
+    const key = (typeof _currentFacultyKey !== 'undefined' && _currentFacultyKey)
+                    ? _currentFacultyKey : '_default';
+    return BATCH_DATA[key] || BATCH_DATA['_default'];
+}
+
+/* Active state */
+let _batchType  = 'new';   /* 'new' | 'old' */
+let _batchIndex = 0;       /* index inside current type array */
+
+/* ── Build dropdown options ── */
+function buildDropdown() {
+    const batches  = getBatchData()[_batchType];
+    const dropdown = document.getElementById('batchDropdown');
+    dropdown.innerHTML = batches.map((b, i) =>
+        `<option value="${i}">${b.label}</option>`
+    ).join('');
+    dropdown.value = _batchIndex < batches.length ? _batchIndex : 0;
+    _batchIndex    = parseInt(dropdown.value);
+    updateBadge();
+}
+
+/* ── Switch between Current / Old tabs ── */
+function switchBatchType(type) {
+    _batchType  = type;
+    _batchIndex = 0;
+
+    /* style the toggle buttons */
+    const activeStyle   = 'background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3);';
+    const inactiveStyle = 'background:transparent;color:#6b7280;box-shadow:none;';
+    document.getElementById('btnNewBatch').style.cssText += type === 'new' ? activeStyle : inactiveStyle;
+    document.getElementById('btnOldBatch').style.cssText += type === 'old' ? activeStyle : inactiveStyle;
+
+    buildDropdown();
+    loadCurrentBatch();
+}
+
+/* ── Dropdown changed ── */
+function onBatchChange() {
+    _batchIndex = parseInt(document.getElementById('batchDropdown').value);
+    updateBadge();
+    loadCurrentBatch();
+}
+
+/* ── Update the coloured badge ── */
+function updateBadge() {
+    const batches = getBatchData()[_batchType];
+    const batch   = batches[_batchIndex] || batches[0];
+    const badge   = document.getElementById('batchBadge');
+    if (!batch || !badge) return;
+    if (_batchType === 'old') {
+        badge.style.background = '#fef3c7';
+        badge.style.color      = '#92400e';
+        badge.textContent      = '📁 Archived · ' + batch.label;
+    } else {
+        badge.style.background = '#d1fae5';
+        badge.style.color      = '#065f46';
+        badge.textContent      = '🎓 Active · ' + batch.label;
+    }
+}
+
+/* ── Load students of selected batch ── */
+function loadCurrentBatch() {
+    const batches = getBatchData()[_batchType];
+    const batch   = batches[_batchIndex] || batches[0];
+    const list    = batch ? batch.students : [];
+
+    /* expose to faculty-dashboard.js so its renderStudentRows works */
+    if (typeof window._allStudents !== 'undefined') window._allStudents = list;
+    window.STUDENTS = list;
+
+    renderStudents(list);
+
+    /* clear search input */
+    const inp = document.getElementById('search-input');
+    if (inp) inp.value = '';
+}
+
+/* Default students — kept for backward compat only */
+const DEFAULT_STUDENTS = getBatchData().new[0].students;
 
 /* ── helpers ── */
 function loadFac()  { try { return JSON.parse(localStorage.getItem(FAC_KEY))  || defaultFaculty();  } catch(e){ return defaultFaculty(); } }
@@ -595,6 +761,12 @@ function loadAnn()  { try { return JSON.parse(localStorage.getItem(ANN_KEY)) || 
 function saveAnn(a) { localStorage.setItem(ANN_KEY, JSON.stringify(a)); }
 function loadMsg()  { try { return JSON.parse(localStorage.getItem(MSG_KEY)) || []; } catch(e){ return []; } }
 function saveMsg(m) { localStorage.setItem(MSG_KEY, JSON.stringify(m)); }
+
+/* ── Batch init (called from DOMContentLoaded below) ── */
+function initBatchUI() {
+    buildDropdown();    /* populate dropdown with Current Batch options */
+    loadCurrentBatch(); /* render students of first batch */
+}
 
 /* ═══════════════════════════════════════════════════════════
    RENDER FACULTY PROFILE CARD
@@ -657,11 +829,8 @@ function renderFacultyCard() {
 ═══════════════════════════════════════════════════════════ */
 let allStudents = DEFAULT_STUDENTS;
 
-/* Try to merge from faculty-dashboard.js if it exposes window.STUDENTS */
-function initStudents() {
-    if (window.STUDENTS && Array.isArray(window.STUDENTS)) allStudents = window.STUDENTS;
-    renderStudents(allStudents);
-}
+/* initStudents is now replaced by initBatchUI — kept for compat */
+function initStudents() { initBatchUI(); }
 
 function renderStudents(list) {
     const tbody = document.getElementById('students-tbody');
@@ -693,17 +862,20 @@ function viewStudent(i) {
     alert(`Student: ${s.name}\nRoll: ${s.roll} | Class: ${s.div}\nContact: ${s.contact}\nEmail: ${s.email}`);
 }
 
-/* ── Search ── */
+/* ── Search — filters within the active batch ── */
 document.addEventListener('DOMContentLoaded', () => {
     const inp = document.getElementById('search-input');
     if (inp) inp.addEventListener('input', () => {
         const q = inp.value.trim().toLowerCase();
+        const batches = getBatchData()[_batchType];
+        const batch   = batches[_batchIndex] || batches[0];
+        const base    = batch ? batch.students : [];
         renderStudents(q
-            ? allStudents.filter(s =>
+            ? base.filter(s =>
                 s.name.toLowerCase().includes(q) ||
                 s.roll.toLowerCase().includes(q)  ||
                 s.email.toLowerCase().includes(q))
-            : allStudents);
+            : base);
     });
 });
 
@@ -919,7 +1091,7 @@ function showToast(msg='Done!') {
 ═══════════════════════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
     renderFacultyCard();
-    initStudents();
+    initBatchUI();
     renderAnnouncements();
 });
 </script>
