@@ -134,8 +134,10 @@ function loadDepartments() {
     });
 }
 
+document.addEventListener('DOMContentLoaded', loadDepartments);
 
-// ================= NOTICES =================
+
+// ================= NOTICE =================
 
 function publishNotice() {
 
@@ -164,3 +166,31 @@ function loadNotices() {
         noticeList.appendChild(li);
     });
 }
+
+document.addEventListener('DOMContentLoaded', loadNotices);
+
+
+// ================= SETTINGS (Dark Mode) =================
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const toggle = document.getElementById('darkModeToggle');
+
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        toggle.checked = true;
+    }
+
+    toggle?.addEventListener('change', function () {
+
+        if (this.checked) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('darkMode', 'disabled');
+        }
+
+    });
+
+});
