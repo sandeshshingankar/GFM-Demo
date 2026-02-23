@@ -120,46 +120,80 @@
     </section>
 
     <!-- Quick Access -->
-    <section class="quick-access">
-        <h2>Quick Access</h2>
+<!-- ================= QUICK ACCESS ================= -->
+<section class="quick-access">
+    <h2>Quick Access</h2>
 
-        <div class="access-buttons">
+    <div class="access-buttons">
 
-            <a href="hod1.html" class="access-btn faculty-btn">
-                <span class="btn-icon">🏛</span>
-                <div class="btn-text">
-                    <strong>Manage Departments</strong>
-                    <p>Add or monitor departments</p>
-                </div>
-            </a>
-
-            <a href="#" class="access-btn student-btn">
-                <span class="btn-icon">👥</span>
-                <div class="btn-text">
-                    <strong>Faculty Monitoring</strong>
-                    <p>Track faculty performance</p>
-                </div>
-            </a>
-
-            <a href="#" class="access-btn reports-btn">
-                <span class="btn-icon">📚</span>
-                <div class="btn-text">
-                    <strong>Student Reports</strong>
-                    <p>View academic performance</p>
-                </div>
-            </a>
-
-            <!-- 📢 Publish Notice Added -->
-            <a href="#" class="access-btn settings-btn">
-                <span class="btn-icon">📢</span>
-                <div class="btn-text">
-                    <strong>Publish Notice</strong>
-                    <p>Send announcements institute-wide</p>
-                </div>
-            </a>
-
+        <!-- Manage Departments -->
+        <div class="access-btn faculty-btn" onclick="openPanel('departmentsPanel')">
+            <span class="btn-icon">🏛</span>
+            <div class="btn-text">
+                <strong>Manage Departments</strong>
+                <p>Add or monitor departments</p>
+            </div>
         </div>
-    </section>
+
+        <!-- Faculty Monitoring -->
+        <div class="access-btn student-btn" onclick="openPanel('facultyPanel')">
+            <span class="btn-icon">👥</span>
+            <div class="btn-text">
+                <strong>Faculty Monitoring</strong>
+                <p>Track faculty performance</p>
+            </div>
+        </div>
+
+        <!-- Student Reports -->
+        <div class="access-btn reports-btn" onclick="openPanel('studentPanel')">
+            <span class="btn-icon">📚</span>
+            <div class="btn-text">
+                <strong>Student Reports</strong>
+                <p>View academic performance</p>
+            </div>
+        </div>
+
+        <!-- Publish Notice -->
+        <div class="access-btn settings-btn" onclick="openPanel('noticePanel')">
+            <span class="btn-icon">📢</span>
+            <div class="btn-text">
+                <strong>Publish Notice</strong>
+                <p>Send announcements institute-wide</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ================= DYNAMIC PANELS ================= -->
+
+<section id="departmentsPanel" class="dynamic-panel">
+    <h2>Manage Departments</h2>
+    <input type="text" id="newDept" placeholder="Enter Department Name">
+    <button onclick="addDepartment()">Add Department</button>
+    <ul id="deptList"></ul>
+</section>
+
+
+<section id="facultyPanel" class="dynamic-panel">
+    <h2>Faculty Monitoring</h2>
+    <p>Total Faculty: 65</p>
+</section>
+
+
+<section id="studentPanel" class="dynamic-panel">
+    <h2>Student Reports</h2>
+    <p>Average CGPA: 8.2</p>
+</section>
+
+
+<section id="noticePanel" class="dynamic-panel">
+    <h2>Publish Notice</h2>
+    <textarea id="noticeText" placeholder="Write notice here"></textarea>
+    <button onclick="publishNotice()">Publish</button>
+    <ul id="noticeList"></ul>
+</section>
 
 </main>
 
