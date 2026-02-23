@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     const grid = document.querySelector(".faculty-grid");
-
     const addBtn = document.querySelector(".add-btn");
     const modal = document.getElementById("addFacultyModal");
     const closeBtn = document.querySelector(".close-add");
@@ -12,12 +11,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let selectedImage = "";
 
+    // ===== SAFETY CHECK =====
+    if (!grid || !addBtn || !modal || !form) {
+        console.log("Required elements not found");
+        return;
+    }
+
     // ===== OPEN MODAL =====
     addBtn.addEventListener("click", function (e) {
         e.preventDefault();
         modal.style.display = "flex";
     });
 
+    // ===== CLOSE MODAL =====
     closeBtn.addEventListener("click", function () {
         modal.style.display = "none";
     });
@@ -44,39 +50,42 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ===== ADD FACULTY =====
- form.addEventListener("submit", function (e) {
-    e.preventDefault();
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    const name = document.getElementById("newFacultyName").value;
-    const role = document.getElementById("newFacultyRole").value;
-    const students = document.getElementById("newFacultyStudents").value;
-    const image = selectedImage || "nitin.png";
+        const name = document.getElementById("newFacultyName").value;
+        const role = document.getElementById("newFacultyRole").value;
+        const students = document.getElementById("newFacultyStudents").value;
 
-    const newCard = document.createElement("a");
-    newCard.href = "#";
-    newCard.className = "faculty-card-link";
+        const image = selectedImage || "nitin.png";
 
-    newCard.innerHTML = `
-        <div class="faculty-card">
-            <div class="faculty-image">
-                <img src="${image}" alt="${name}">
-            </div>
-            <div class="faculty-info">
-                <h3>${name}</h3>
-                <p>${role}</p>
-                <p><strong>Assigned Students:</strong> ${students}</p>
-                <div class="faculty-actions">
-                    <button class="edit-faculty-btn">Edit</button>
-                    <button class="delete-faculty-btn">Delete</button>
+        const newCard = document.createElement("a");
+        newCard.href = "#";
+        newCard.className = "faculty-card-link";
+
+        newCard.innerHTML = `
+            <div class="faculty-card">
+                <div class="faculty-image">
+                    <img src="${image}" alt="${name}">
+                </div>
+                <div class="faculty-info">
+                    <h3>${name}</h3>
+                    <p>${role}</p>
+                    <p><strong>Assigned Students:</strong> ${students}</p>
+                    <div class="faculty-actions">
+                        <button class="edit-faculty-btn">Edit</button>
+                        <button class="delete-faculty-btn">Delete</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
 
-    grid.appendChild(newCard);
+        grid.appendChild(newCard);
 
-    modal.style.display = "none";
-    form.reset();
-    preview.style.display = "none";
-    selectedImage = "";
+        modal.style.display = "none";
+        form.reset();
+        preview.style.display = "none";
+        selectedImage = "";
+    });
+
 });
