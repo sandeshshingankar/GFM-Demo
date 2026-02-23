@@ -1,1099 +1,495 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Dashboard - IT Department</title>
-    <link rel="stylesheet" href="shared-styles.css">
-    <link rel="stylesheet" href="animations.css">
-    <link rel="stylesheet" href="navbar.css">
-    <link rel="stylesheet" href="faculty-dashboard.css">
-    <link rel="stylesheet" href="footer.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+/* =================================================================
+   faculty-dashboard.js
+   Works alongside the inline <script> in faculty-dashboard.html.
+   Handles: student data per faculty, View / Attendance / Academics
+   modals, Search, and injects extra modals into the page.
+================================================================= */
 
-<style>
-/* ═══════════════════════════════════════════════════════
-   FACULTY PROFILE CARD (inline, JS-rendered)
-═══════════════════════════════════════════════════════ */
-.fpc-card {
-    background: #fff;
-    border-radius: 18px;
-    padding: 28px 30px;
-    box-shadow: 0 4px 24px rgba(0,0,0,.10);
-    display: flex;
-    align-items: flex-start;
-    gap: 28px;
-    flex-wrap: wrap;
-    position: relative;
-}
-.fpc-photo-wrap { position: relative; flex-shrink: 0; }
-.fpc-photo {
-    width: 110px; height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #2563eb;
-    display: block;
-    cursor: pointer;
-}
-.fpc-photo-badge {
-    position: absolute; bottom: 4px; right: 4px;
-    background: #2563eb; color: #fff;
-    border-radius: 50%; width: 26px; height: 26px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; border: 2px solid #fff; cursor: pointer;
-}
-.fpc-info { flex: 1; min-width: 220px; }
-.fpc-name { font-size: 22px; font-weight: 800; color: #111827; margin: 0 0 4px; }
-.fpc-title { font-size: 14px; color: #2563eb; font-weight: 600; margin: 0 0 12px; }
-.fpc-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
-.fpc-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 12px; font-weight: 600; padding: 4px 12px;
-    border-radius: 20px;
-}
-.fpc-tag.qual    { background: #dbeafe; color: #1e40af; }
-.fpc-tag.exp     { background: #dcfce7; color: #166534; }
-.fpc-tag.expert  { background: #fef9c3; color: #854d0e; }
-.fpc-tag.pub     { background: #f3e8ff; color: #6b21a8; }
-.fpc-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-.fpc-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 9px 18px; border-radius: 9px; font-size: 13px;
-    font-weight: 700; cursor: pointer; border: none;
-    transition: opacity .18s, transform .15s;
-}
-.fpc-btn:hover { opacity: .85; transform: translateY(-1px); }
-.fpc-btn.edit    { background: linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
-.fpc-btn.msg-s   { background: linear-gradient(135deg,#059669,#047857); color:#fff; }
-.fpc-btn.msg-p   { background: linear-gradient(135deg,#d97706,#b45309); color:#fff; }
-.fpc-btn.ann     { background: linear-gradient(135deg,#7c3aed,#5b21b6); color:#fff; }
-
-/* expertise / research / publications display */
-.fpc-extra { margin-top: 14px; display: none; }
-.fpc-extra.visible { display: block; }
-.fpc-extra-row { margin-bottom: 8px; font-size: 13px; color: #374151; }
-.fpc-extra-row strong { color: #111827; }
-
-/* ═══════════════════════════════════════════════════════
-   STUDENTS TABLE ACTIONS
-═══════════════════════════════════════════════════════ */
-.tbl-btn {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 6px 12px; border-radius: 7px; font-size: 12px;
-    font-weight: 600; cursor: pointer; border: none;
-    transition: opacity .15s;
-}
-.tbl-btn:hover { opacity: .82; }
-.tbl-btn.view   { background: #dbeafe; color: #1e40af; }
-.tbl-btn.msg-s  { background: #d1fae5; color: #065f46; }
-.tbl-btn.msg-p  { background: #fef3c7; color: #92400e; }
-
-/* ═══════════════════════════════════════════════════════
-   ANNOUNCEMENTS PANEL (below students section)
-═══════════════════════════════════════════════════════ */
-.ann-panel {
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px 28px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.09);
-    margin-top: 28px;
-}
-.ann-panel-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
-}
-.ann-panel-header h2 { margin: 0; font-size: 18px; font-weight: 800; color: #111827; }
-.ann-list { display: flex; flex-direction: column; gap: 12px; }
-.ann-item {
-    background: #f8faff;
-    border-left: 4px solid #2563eb;
-    border-radius: 0 10px 10px 0;
-    padding: 13px 16px;
-    position: relative;
-}
-.ann-item.for-student { border-color: #059669; }
-.ann-item.for-parent  { border-color: #d97706; }
-.ann-item.for-both    { border-color: #7c3aed; }
-.ann-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.ann-item-top h4 { margin: 0; font-size: 14px; font-weight: 700; color: #111827; }
-.ann-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.ann-badge {
-    font-size: 11px; font-weight: 700; padding: 2px 9px;
-    border-radius: 20px;
-}
-.ann-badge.student { background: #d1fae5; color: #065f46; }
-.ann-badge.parent  { background: #fef3c7; color: #92400e; }
-.ann-badge.both    { background: #ede9fe; color: #5b21b6; }
-.ann-date { font-size: 11px; color: #9ca3af; }
-.ann-body { margin-top: 6px; font-size: 13px; color: #374151; line-height: 1.6; }
-.ann-del-btn {
-    background: none; border: none; cursor: pointer;
-    color: #dc2626; font-size: 14px; padding: 4px;
-    border-radius: 5px; transition: background .15s;
-}
-.ann-del-btn:hover { background: #fee2e2; }
-.ann-empty { text-align: center; color: #9ca3af; font-size: 14px; padding: 20px 0; }
-
-/* ═══════════════════════════════════════════════════════
-   SHARED MODAL BASE
-═══════════════════════════════════════════════════════ */
-.fd-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(10,15,30,.62); z-index: 9999;
-    justify-content: center; align-items: center;
-    padding: 16px; backdrop-filter: blur(4px);
-}
-.fd-overlay.active { display: flex; }
-.fd-modal {
-    background: #fff; border-radius: 18px;
-    width: 100%; max-width: 580px; max-height: 92vh;
-    overflow-y: auto; scrollbar-width: thin;
-    box-shadow: 0 24px 64px rgba(0,0,0,.28);
-    animation: fdIn .27s cubic-bezier(.34,1.3,.64,1);
-}
-.fd-modal.narrow { max-width: 460px; }
-@keyframes fdIn {
-    from { transform: translateY(28px) scale(.97); opacity: 0; }
-    to   { transform: translateY(0) scale(1); opacity: 1; }
-}
-.fd-mhead {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 24px 15px;
-    border-bottom: 1.5px solid #eef0f4;
-    position: sticky; top: 0; background: #fff; z-index: 2;
-    border-radius: 18px 18px 0 0;
-}
-.fd-mhead h3 { margin: 0; font-size: 16px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px; }
-.fd-mhead h3 i { color: #2563eb; }
-.fd-mclose {
-    background: #f3f4f6; border: none; border-radius: 8px;
-    width: 32px; height: 32px; font-size: 17px; color: #6b7280;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background .15s, color .15s;
-}
-.fd-mclose:hover { background: #fee2e2; color: #dc2626; }
-.fd-mbody { padding: 22px 24px; }
-.fd-mfoot {
-    padding: 14px 24px 20px;
-    display: flex; justify-content: flex-end; gap: 10px;
-    border-top: 1.5px solid #eef0f4;
-}
-
-/* section titles inside modals */
-.fd-stitle {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .9px; color: #2563eb;
-    margin: 18px 0 10px; padding-bottom: 6px;
-    border-bottom: 2px solid #dbeafe;
-}
-
-/* form elements */
-.fd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media(max-width:460px){ .fd-row { grid-template-columns:1fr; } }
-.fd-fg { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-.fd-fg.full { grid-column: 1/-1; }
-.fd-fg label { font-size: 12.5px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 5px; }
-.fd-fg label i { color: #2563eb; font-size: 12px; }
-.fd-fg input, .fd-fg textarea, .fd-fg select {
-    padding: 10px 13px; border: 1.5px solid #d1d5db;
-    border-radius: 9px; font-size: 14px; color: #111827;
-    outline: none; font-family: inherit; background: #fff;
-    transition: border-color .2s, box-shadow .2s;
-    width: 100%; box-sizing: border-box;
-}
-.fd-fg textarea { resize: vertical; min-height: 80px; }
-.fd-fg input:focus, .fd-fg textarea:focus, .fd-fg select:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14);
-}
-.fd-fg input::placeholder, .fd-fg textarea::placeholder { color: #9ca3af; }
-
-/* photo upload zone */
-.fd-photo-zone {
-    display: flex; align-items: center; gap: 18px;
-    background: #f8faff; border: 2px dashed #bfdbfe;
-    border-radius: 13px; padding: 16px 18px;
-    cursor: pointer; transition: border-color .2s, background .2s;
-    margin-bottom: 4px;
-}
-.fd-photo-zone:hover { border-color: #2563eb; background: #eff6ff; }
-.fd-photo-prev-wrap { position: relative; flex-shrink: 0; }
-.fd-photo-prev {
-    width: 70px; height: 70px; border-radius: 50%;
-    object-fit: cover; border: 3px solid #2563eb;
-}
-.fd-photo-cam {
-    position: absolute; bottom: 0; right: 0;
-    background: #2563eb; color: #fff; border-radius: 50%;
-    width: 20px; height: 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; border: 2px solid #fff;
-}
-.fd-photo-text strong { display: block; font-size: 13px; font-weight: 700; color: #1e3a8a; margin-bottom: 2px; }
-.fd-photo-text span   { font-size: 12px; color: #6b7280; }
-
-/* recipient radio buttons */
-.fd-radio-group { display: flex; gap: 14px; flex-wrap: wrap; }
-.fd-radio-group label {
-    display: flex; align-items: center; gap: 6px;
-    cursor: pointer; font-size: 13px; font-weight: 600; color: #374151;
-}
-
-/* buttons */
-.fd-btn-cancel {
-    padding: 10px 22px; border: 1.5px solid #d1d5db;
-    border-radius: 9px; background: #fff;
-    font-size: 14px; font-weight: 600; color: #374151; cursor: pointer;
-    transition: background .15s;
-}
-.fd-btn-cancel:hover { background: #f3f4f6; }
-.fd-btn-save {
-    padding: 10px 24px; border: none; border-radius: 9px;
-    font-size: 14px; font-weight: 700; color: #fff; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    box-shadow: 0 4px 14px rgba(37,99,235,.3);
-    transition: opacity .2s, transform .15s;
-}
-.fd-btn-save:hover { opacity: .87; transform: translateY(-1px); }
-.fd-btn-save.blue   { background: linear-gradient(135deg,#2563eb,#1d4ed8); }
-.fd-btn-save.green  { background: linear-gradient(135deg,#059669,#047857); }
-.fd-btn-save.purple { background: linear-gradient(135deg,#7c3aed,#5b21b6); }
-
-/* ── Toast ── */
-.fd-toast {
-    position: fixed; bottom: 26px; left: 50%;
-    transform: translateX(-50%) translateY(70px);
-    background: #16a34a; color: #fff;
-    padding: 11px 22px; border-radius: 10px;
-    font-size: 14px; font-weight: 600; z-index: 10000;
-    box-shadow: 0 8px 24px rgba(0,0,0,.18);
-    display: flex; align-items: center; gap: 7px;
-    opacity: 0; pointer-events: none; white-space: nowrap;
-    transition: transform .36s cubic-bezier(.34,1.5,.64,1), opacity .26s;
-}
-.fd-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-</style>
-</head>
-<body>
-
-<!-- Navigation -->
-<nav class="navbar">
-    <div class="nav-container">
-        <a href="faculty.html" class="nav-back">← Back to Faculty</a>
-        <h1 class="nav-title">Faculty Dashboard</h1>
-        <div></div>
-    </div>
-</nav>
-
-<!-- Hero Section -->
-<header class="hero-section">
-    <img class="hero-banner" src="hero-banner.png" alt="IT Department Banner">
-</header>
-<section class="hero-text">
-    <h1>Faculty Dashboard</h1>
-    <p>Empowering Education Through Technology</p>
-</section>
-
-<!-- Main Content -->
-<main class="container">
-
-    <!-- Faculty Profile Card -->
-    <section class="faculty-profile-section">
-        <div id="faculty-profile" class="faculty-profile-card">
-            <!-- Rendered by JS below -->
-        </div>
-    </section>
-
-    <!-- Students Section -->
-    <section class="students-section">
-        <div class="section-header">
-            <h2>Assigned Students</h2>
-            <p>View and manage all students assigned to this faculty member</p>
-        </div>
-
-        <!-- ── Batch Selector ── -->
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;">
-
-            <!-- Batch Type Toggle -->
-            <div style="display:flex;background:#f1f5f9;border-radius:10px;padding:4px;gap:4px;">
-                <button id="btnNewBatch" onclick="switchBatchType('new')"
-                    style="padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;
-                           cursor:pointer;transition:all .2s;background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3);">
-                    🎓 Current Batch
-                </button>
-                <button id="btnOldBatch" onclick="switchBatchType('old')"
-                    style="padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;
-                           cursor:pointer;transition:all .2s;background:transparent;color:#6b7280;">
-                    📁 Old Batch
-                </button>
-            </div>
-
-            <!-- Batch Dropdown -->
-            <div style="display:flex;align-items:center;gap:8px;">
-                <label style="font-size:13px;font-weight:600;color:#374151;">Batch:</label>
-                <select id="batchDropdown" onchange="onBatchChange()"
-                    style="padding:9px 36px 9px 14px;border:2px solid #d1d5db;border-radius:9px;
-                           font-size:13px;font-weight:600;color:#111827;background:#fff;
-                           cursor:pointer;outline:none;appearance:none;
-                           background-image:url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%232563eb\' stroke-width=\'2\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e');
-                           background-repeat:no-repeat;background-position:right 10px center;background-size:18px;">
-                </select>
-            </div>
-
-            <!-- Active Badge -->
-            <div id="batchBadge"
-                style="background:#dbeafe;color:#1e40af;padding:6px 14px;border-radius:20px;
-                       font-size:12px;font-weight:700;white-space:nowrap;">
-            </div>
-        </div>
-
-        <!-- Search -->
-        <div class="search-bar-container">
-            <input type="text" id="search-input" class="search-input"
-                   placeholder="Search by name, roll number, or email..."
-                   aria-label="Search students">
-            <button class="search-btn" aria-label="Search"><span>🔍</span></button>
-        </div>
-
-        <div class="table-container">
-            <table class="students-table" role="table">
-                <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Roll Number</th>
-                        <th>Class/Division</th>
-                        <th>Contact</th>
-                        <th>Email</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="students-tbody"></tbody>
-            </table>
-        </div>
-        <div id="no-results" class="no-results" style="display:none;">
-            <p>No students found matching your search.</p>
-        </div>
-    </section>
-
-    <!-- ══ Announcements Panel ══ -->
-    <section class="ann-panel">
-        <div class="ann-panel-header">
-            <h2><i class="fas fa-bullhorn" style="color:#7c3aed;margin-right:8px;"></i>Announcements</h2>
-            <button class="fpc-btn ann" onclick="openAnnModal()">
-                <i class="fas fa-plus"></i> New Announcement
-            </button>
-        </div>
-        <div class="ann-list" id="annList">
-            <div class="ann-empty" id="annEmpty">No announcements yet. Create one above.</div>
-        </div>
-    </section>
-
-</main>
-
-<!-- ══════════════════════════════════════════════════
-     MODAL 1 — FACULTY EDIT
-══════════════════════════════════════════════════ -->
-<div class="fd-overlay" id="editModal" onclick="closeOnOverlay(event,'editModal')">
-  <div class="fd-modal">
-    <div class="fd-mhead">
-        <h3><i class="fas fa-user-edit"></i> Edit Faculty Profile</h3>
-        <button class="fd-mclose" onclick="closeModal('editModal')">✕</button>
-    </div>
-    <div class="fd-mbody">
-
-        <!-- Photo -->
-        <div class="fd-stitle">Profile Photo</div>
-        <div class="fd-photo-zone" onclick="document.getElementById('facPhotoInput').click()"
-             tabindex="0" role="button"
-             onkeypress="if(event.key==='Enter')document.getElementById('facPhotoInput').click()">
-            <div class="fd-photo-prev-wrap">
-                <img id="facPhotoPrev" src="faculty-default.png" alt="Preview" class="fd-photo-prev">
-                <span class="fd-photo-cam"><i class="fas fa-camera"></i></span>
-            </div>
-            <div class="fd-photo-text">
-                <strong>Click to Upload / Change Photo</strong>
-                <span>JPG, PNG or WEBP · Max 5 MB</span>
-            </div>
-        </div>
-        <input type="file" id="facPhotoInput" accept="image/*" style="display:none">
-
-        <!-- Basic -->
-        <div class="fd-stitle">Basic Information</div>
-        <div class="fd-row">
-            <div class="fd-fg"><label><i class="fas fa-user"></i>Full Name</label>
-                <input type="text" id="fEdit_name" placeholder="e.g. Dr. Nitin Wankhade"></div>
-            <div class="fd-fg"><label><i class="fas fa-id-badge"></i>Designation</label>
-                <input type="text" id="fEdit_title" placeholder="e.g. Associate Professor"></div>
-        </div>
-        <div class="fd-fg"><label><i class="fas fa-envelope"></i>Email</label>
-            <input type="email" id="fEdit_email" placeholder="faculty@nmiet.edu.in"></div>
-
-        <!-- Qualification -->
-        <div class="fd-stitle">Qualification</div>
-        <div class="fd-fg"><label><i class="fas fa-graduation-cap"></i>Highest Qualification</label>
-            <input type="text" id="fEdit_qual" placeholder="e.g. Ph.D. – Computer Science, IIT Bombay"></div>
-        <div class="fd-fg"><label><i class="fas fa-university"></i>Additional Degrees</label>
-            <input type="text" id="fEdit_qualExtra" placeholder="e.g. M.Tech, B.E. (comma-separated)"></div>
-
-        <!-- Experience -->
-        <div class="fd-stitle">Experience</div>
-        <div class="fd-row">
-            <div class="fd-fg"><label><i class="fas fa-briefcase"></i>Total Exp (Years)</label>
-                <input type="number" id="fEdit_expTotal" placeholder="e.g. 15" min="0"></div>
-            <div class="fd-fg"><label><i class="fas fa-chalkboard-teacher"></i>Teaching Exp (Years)</label>
-                <input type="number" id="fEdit_expTeach" placeholder="e.g. 12" min="0"></div>
-        </div>
-
-        <!-- Expertise -->
-        <div class="fd-stitle">Expertise &amp; Research</div>
-        <div class="fd-fg"><label><i class="fas fa-code"></i>Primary Expertise Areas</label>
-            <input type="text" id="fEdit_expertise" placeholder="e.g. Machine Learning, Cloud Computing"></div>
-        <div class="fd-fg"><label><i class="fas fa-flask"></i>Research Interests</label>
-            <textarea id="fEdit_research" placeholder="Describe research interests / ongoing projects..."></textarea></div>
-
-        <!-- Publications -->
-        <div class="fd-stitle">Publications</div>
-        <div id="fPubList" style="display:flex;flex-direction:column;gap:9px;"></div>
-        <button style="margin-top:8px;background:none;border:1.5px dashed #2563eb;border-radius:8px;
-                        color:#2563eb;font-size:13px;font-weight:600;padding:8px 14px;cursor:pointer;
-                        display:inline-flex;align-items:center;gap:6px;"
-                onclick="addPubRow()">
-            <i class="fas fa-plus"></i> Add Publication
-        </button>
-    </div>
-    <div class="fd-mfoot">
-        <button class="fd-btn-cancel" onclick="closeModal('editModal')">Cancel</button>
-        <button class="fd-btn-save blue" onclick="saveFacultyEdit()">
-            <i class="fas fa-save"></i> Save Changes
-        </button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════════
-     MODAL 2 — SEND MESSAGE
-══════════════════════════════════════════════════ -->
-<div class="fd-overlay" id="msgModal" onclick="closeOnOverlay(event,'msgModal')">
-  <div class="fd-modal narrow">
-    <div class="fd-mhead">
-        <h3><i class="fas fa-paper-plane"></i> <span id="msgModalTitle">Send Message</span></h3>
-        <button class="fd-mclose" onclick="closeModal('msgModal')">✕</button>
-    </div>
-    <div class="fd-mbody">
-        <div class="fd-fg">
-            <label><i class="fas fa-user"></i>To</label>
-            <input type="text" id="msgTo" readonly style="background:#f3f4f6;">
-        </div>
-        <div class="fd-fg">
-            <label><i class="fas fa-tag"></i>Subject</label>
-            <input type="text" id="msgSubject" placeholder="e.g. Attendance Update">
-        </div>
-        <div class="fd-fg">
-            <label><i class="fas fa-pen"></i>Message</label>
-            <textarea id="msgBody" rows="5" placeholder="Type your message here..."></textarea>
-        </div>
-    </div>
-    <div class="fd-mfoot">
-        <button class="fd-btn-cancel" onclick="closeModal('msgModal')">Cancel</button>
-        <button class="fd-btn-save green" id="msgSendBtn" onclick="sendMessage()">
-            <i class="fas fa-paper-plane"></i> Send
-        </button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════════
-     MODAL 3 — NEW ANNOUNCEMENT
-══════════════════════════════════════════════════ -->
-<div class="fd-overlay" id="annModal" onclick="closeOnOverlay(event,'annModal')">
-  <div class="fd-modal narrow">
-    <div class="fd-mhead">
-        <h3><i class="fas fa-bullhorn"></i> New Announcement</h3>
-        <button class="fd-mclose" onclick="closeModal('annModal')">✕</button>
-    </div>
-    <div class="fd-mbody">
-        <div class="fd-fg">
-            <label><i class="fas fa-heading"></i>Title</label>
-            <input type="text" id="annTitle" placeholder="e.g. Exam Schedule Update">
-        </div>
-        <div class="fd-fg">
-            <label><i class="fas fa-align-left"></i>Message</label>
-            <textarea id="annBody" rows="4" placeholder="Write announcement content..."></textarea>
-        </div>
-        <div class="fd-stitle">Visible To</div>
-        <div class="fd-radio-group">
-            <label>
-                <input type="radio" name="annFor" value="student" checked>
-                <span style="background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:20px;font-size:12px;">Students</span>
-            </label>
-            <label>
-                <input type="radio" name="annFor" value="parent">
-                <span style="background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:20px;font-size:12px;">Parents</span>
-            </label>
-            <label>
-                <input type="radio" name="annFor" value="both">
-                <span style="background:#ede9fe;color:#5b21b6;padding:3px 10px;border-radius:20px;font-size:12px;">Both</span>
-            </label>
-        </div>
-    </div>
-    <div class="fd-mfoot">
-        <button class="fd-btn-cancel" onclick="closeModal('annModal')">Cancel</button>
-        <button class="fd-btn-save purple" onclick="postAnnouncement()">
-            <i class="fas fa-bullhorn"></i> Post
-        </button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="fd-toast" id="fdToast"><i class="fas fa-check-circle"></i> <span id="fdToastMsg">Done!</span></div>
-
-<!-- Footer -->
-<footer class="footer">
-    <div class="footer-top">
-        © Copyright 2026 |
-        <strong>NMIET Institute</strong> |
-        All Rights Reserved |
-        SEO &amp; Web Design by Sandesh, Khushal &amp; Vaishnavi
-    </div>
-    <div class="footer-bottom">
-        <p>Our Team</p>
-        <div class="team-social">
-            <div class="member">
-                <span>Sandesh Shingankar</span>
-                <a href="https://github.com/sandeshshingankar" title="GitHub" aria-label="Sandesh's GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/sandeshs-shingankar/" title="LinkedIn" aria-label="Sandesh's LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-            <div class="member">
-                <span>Khushal Warule</span>
-                <a href="https://github.com/KhushalWarule" title="GitHub" aria-label="Khushal's GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/khushal-warule-781329292" title="LinkedIn" aria-label="Khushal's LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-            <div class="member">
-                <span>Vaishnavi Kadganchi</span>
-                <a href="https://github.com/vaishnavikadganchi" title="GitHub" aria-label="Vaishnavi's GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/vaishnavi-kadganchi" title="LinkedIn" aria-label="Vaishnavi's LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-            <div class="member">
-                <span>Tejas Naiknaware</span>
-                <a href="https://github.com/tejasn369" title="GitHub" aria-label="Tejas GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/tejas-naiknaware/" title="LinkedIn" aria-label="Tejas LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-        </div>
-    </div>
-    <button class="scroll-top" onclick="scrollToTop()" aria-label="Scroll to top">↑</button>
-</footer>
-
-<script src="faculty-dashboard.js"></script>
-<script src="scroll-to-top.js"></script>
-
-<script>
-/* ═══════════════════════════════════════════════════════════
-   DATA — Faculty & Students
-   In production these come from faculty-dashboard.js / URL params.
-   We seed sensible defaults so the page is fully self-contained.
-═══════════════════════════════════════════════════════════ */
-const FAC_KEY = 'faculty_profile_v1';
-const ANN_KEY = 'faculty_announcements_v1';
-const MSG_KEY = 'faculty_messages_v1';
-
-/* Default faculty data (overridden if faculty-dashboard.js populates window.FACULTY_DATA) */
-function defaultFaculty() {
-    return {
-        id:          'fac_001',
-        name:        'Dr. Nitin Wankhade',
-        title:       'Associate Professor',
-        email:       'nitin.wankhade@nmiet.edu.in',
-        photo:       '',
-        qual:        'Ph.D. – Computer Science',
-        qualExtra:   'M.Tech, B.E.',
-        expTotal:    '15',
-        expTeach:    '12',
-        expertise:   'Data Structures, Cloud Computing',
-        research:    'Distributed systems and cloud-native architectures.',
-        publications: [
-            'Cloud Load Balancing Techniques – IJCA 2023',
-            'Microservices Security – Springer 2022'
-        ]
-    };
-}
-
-/* ── BATCH DATA ──────────────────────────────────────────
-   Structure:
-     BATCH_DATA[facultyKey].new  → current batches
-     BATCH_DATA[facultyKey].old  → old / passed-out batches
-   Each batch: { label, year, students: [...] }
-──────────────────────────────────────────────────────── */
-const BATCH_DATA = {
-    /* ── Default (used when no faculty key matches) ── */
-    _default: {
-        new: [
-            {
-                label: 'TE-IT-2027', year: '2027',
-                students: [
-                    { name:'Sandesh Shingankar',  roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com', parent:'Ashok Shingankar'    },
-                    { name:'Khushal Warule',      roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',  parent:'Shantaram Warule'   },
-                    { name:'Vaishnavi Kadganchi', roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com', parent:'Appasaheb Kadganchi'},
-                    { name:'Tejas Naiknaware',    roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',           parent:'Balasaheb Naiknaware'},
-                ]
-            },
-            {
-                label: 'SE-IT-2028', year: '2028',
-                students: [
-                    { name:'Amit Pawar',   roll:'11', div:'SE IT-A', contact:'9876500001', email:'amit.pawar@nmiet.edu.in',   parent:'Suresh Pawar'  },
-                    { name:'Priya Jadhav', roll:'22', div:'SE IT-B', contact:'9876500002', email:'priya.jadhav@nmiet.edu.in', parent:'Ravi Jadhav'   },
-                    { name:'Rohan More',   roll:'33', div:'SE IT-A', contact:'9876500003', email:'rohan.more@nmiet.edu.in',   parent:'Dilip More'    },
-                ]
-            },
-            {
-                label: 'BE-IT-2026', year: '2026',
-                students: [
-                    { name:'Sneha Kulkarni', roll:'51', div:'BE IT-A', contact:'9900001111', email:'sneha.kulkarni@nmiet.edu.in', parent:'Anand Kulkarni' },
-                    { name:'Raj Deshmukh',   roll:'62', div:'BE IT-B', contact:'9900002222', email:'raj.deshmukh@nmiet.edu.in',  parent:'Vijay Deshmukh' },
-                ]
-            },
-        ],
-        old: [
-            {
-                label: 'TE-IT-2024', year: '2024',
-                students: [
-                    { name:'Pooja Sharma',  roll:'41', div:'TE IT-A', contact:'9811001100', email:'pooja.sharma@alumni.nmiet.edu.in',  parent:'Mukesh Sharma'  },
-                    { name:'Kiran Patil',   roll:'52', div:'TE IT-B', contact:'9822002200', email:'kiran.patil@alumni.nmiet.edu.in',   parent:'Ganesh Patil'   },
-                    { name:'Nilesh Borse',  roll:'63', div:'TE IT-A', contact:'9833003300', email:'nilesh.borse@alumni.nmiet.edu.in',  parent:'Sunil Borse'    },
-                ]
-            },
-            {
-                label: 'TE-IT-2023', year: '2023',
-                students: [
-                    { name:'Sakshi Gaikwad', roll:'14', div:'TE IT-A', contact:'9844004400', email:'sakshi.gaikwad@alumni.nmiet.edu.in', parent:'Pramod Gaikwad' },
-                    { name:'Omkar Shinde',   roll:'25', div:'TE IT-B', contact:'9855005500', email:'omkar.shinde@alumni.nmiet.edu.in',   parent:'Santosh Shinde' },
-                ]
-            },
-        ]
-    }
+/* ── 1. FACULTY & STUDENT DATA ── */
+const facultyStudentData = {
+    'nitin-dhawas': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
+    'dheeraj-patil': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
+    'nitin-wankhade': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
+    'roshni-narkhede': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
+    'sonali-dongare': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+    ],
+    'vivek-nagargoje': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+    ],
+    'vanita-deshmukh': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
+    'hemlata-mane': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
+    'bharti-dhote': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
+    'ajay-sonawane': [
+        { name:'Sandesh Shingankar',        roll:'70', div:'TE IT-A', contact:'8668916936', email:'sandeshshingankar8@gmail.com',  parent:'Ashok Shingankar' },
+        { name:'Khushal Shantaram Warule',  roll:'80', div:'TE IT-A', contact:'7249256930', email:'khushalwarule2005@gmail.com',   parent:'Shantaram Warule' },
+        { name:'Vaishnavi A. Kadganchi',    roll:'79', div:'TE IT-A', contact:'7709411329', email:'vaishnavikadganchi@gmail.com',  parent:'Appasaheb Kadganchi' },
+        { name:'Tejas B. Naiknaware',       roll:'84', div:'TE IT-A', contact:'8007953205', email:'tezz4568@gmail.com',            parent:'Balasaheb Naiknaware' },
+    ],
 };
 
-/* Helper — get batch data for current faculty (falls back to _default) */
-function getBatchData() {
-    const key = (typeof _currentFacultyKey !== 'undefined' && _currentFacultyKey)
-                    ? _currentFacultyKey : '_default';
-    return BATCH_DATA[key] || BATCH_DATA['_default'];
-}
-
-/* Active state */
-let _batchType  = 'new';   /* 'new' | 'old' */
-let _batchIndex = 0;       /* index inside current type array */
-
-/* ── Build dropdown options ── */
-function buildDropdown() {
-    const batches  = getBatchData()[_batchType];
-    const dropdown = document.getElementById('batchDropdown');
-    dropdown.innerHTML = batches.map((b, i) =>
-        `<option value="${i}">${b.label}</option>`
-    ).join('');
-    dropdown.value = _batchIndex < batches.length ? _batchIndex : 0;
-    _batchIndex    = parseInt(dropdown.value);
-    updateBadge();
-}
-
-/* ── Switch between Current / Old tabs ── */
-function switchBatchType(type) {
-    _batchType  = type;
-    _batchIndex = 0;
-
-    /* style the toggle buttons */
-    const activeStyle   = 'background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3);';
-    const inactiveStyle = 'background:transparent;color:#6b7280;box-shadow:none;';
-    document.getElementById('btnNewBatch').style.cssText += type === 'new' ? activeStyle : inactiveStyle;
-    document.getElementById('btnOldBatch').style.cssText += type === 'old' ? activeStyle : inactiveStyle;
-
-    buildDropdown();
-    loadCurrentBatch();
-}
-
-/* ── Dropdown changed ── */
-function onBatchChange() {
-    _batchIndex = parseInt(document.getElementById('batchDropdown').value);
-    updateBadge();
-    loadCurrentBatch();
-}
-
-/* ── Update the coloured badge ── */
-function updateBadge() {
-    const batches = getBatchData()[_batchType];
-    const batch   = batches[_batchIndex] || batches[0];
-    const badge   = document.getElementById('batchBadge');
-    if (!batch || !badge) return;
-    if (_batchType === 'old') {
-        badge.style.background = '#fef3c7';
-        badge.style.color      = '#92400e';
-        badge.textContent      = '📁 Archived · ' + batch.label;
-    } else {
-        badge.style.background = '#d1fae5';
-        badge.style.color      = '#065f46';
-        badge.textContent      = '🎓 Active · ' + batch.label;
-    }
-}
-
-/* ── Load students of selected batch ── */
-function loadCurrentBatch() {
-    const batches = getBatchData()[_batchType];
-    const batch   = batches[_batchIndex] || batches[0];
-    const list    = batch ? batch.students : [];
-
-    /* expose to faculty-dashboard.js so its renderStudentRows works */
-    if (typeof window._allStudents !== 'undefined') window._allStudents = list;
-    window.STUDENTS = list;
-
-    renderStudents(list);
-
-    /* clear search input */
-    const inp = document.getElementById('search-input');
-    if (inp) inp.value = '';
-}
-
-/* Default students — kept for backward compat only */
-const DEFAULT_STUDENTS = getBatchData().new[0].students;
-
-/* ── helpers ── */
-function loadFac()  { try { return JSON.parse(localStorage.getItem(FAC_KEY))  || defaultFaculty();  } catch(e){ return defaultFaculty(); } }
-function saveFac(d) { localStorage.setItem(FAC_KEY, JSON.stringify(d)); }
-function loadAnn()  { try { return JSON.parse(localStorage.getItem(ANN_KEY)) || []; } catch(e){ return []; } }
-function saveAnn(a) { localStorage.setItem(ANN_KEY, JSON.stringify(a)); }
-function loadMsg()  { try { return JSON.parse(localStorage.getItem(MSG_KEY)) || []; } catch(e){ return []; } }
-function saveMsg(m) { localStorage.setItem(MSG_KEY, JSON.stringify(m)); }
-
-/* ── Batch init (called from DOMContentLoaded below) ── */
-function initBatchUI() {
-    buildDropdown();    /* populate dropdown with Current Batch options */
-    loadCurrentBatch(); /* render students of first batch */
-}
+const facultyProfiles = {
+    'nitin-dhawas':    { name:'Dr. Nitin Dhawas',      title:'Professor',            email:'nitin.dhawas@nmiet.edu.in',    photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/dr-nitin-dhawas.png',              qual:'PhD (Electronics & Communication)', qualExtra:'ME (IT)', expTotal:'27', expTeach:'27', expertise:'Wireless Communication, Mobile Computing, Cloud Computing', research:'Mobile edge computing and IoT.', publications:['Int. Journal - 55 papers','Int. Conference - 14 papers','Copyright & Patent - 15'] },
+    'dheeraj-patil':   { name:'Prof. Dheeraj Patil',   title:'Asst. Professor & Academic Coordinator', email:'dheeraj.patil@nmiet.edu.in', photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mr-diraj-patil.png', qual:'ME (Computer Engg)', qualExtra:'BE (Computer Engg)', expTotal:'17', expTeach:'17', expertise:'Computer Networking, Computer Security', research:'Network security and intrusion detection.', publications:['Int. Journal - 8 papers','Int. Conference - 4 papers','Copyright & Patent - 2'] },
+    'nitin-wankhade':  { name:'Prof. Nitin Wankhade',  title:'Asst. Professor',      email:'nitin.wankhade@nmiet.edu.in',  photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/dr-nitin-wankhande.png',        qual:'PhD (Pursuing), ME (IT)', qualExtra:'BE', expTotal:'18', expTeach:'18', expertise:'Machine Learning, Generative AI', research:'Generative models and language AI.', publications:['Int. Journal - 2 papers','Int. Conference - 6 papers','Copyright & Patent - 2'] },
+    'roshni-narkhede': { name:'Prof. Roshni Narkhede', title:'Asst. Professor',      email:'roshni.narkhede@nmiet.edu.in', photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mrs-roshini.png',              qual:'ME (Computer Engg)', qualExtra:'BE', expTotal:'9',  expTeach:'9',  expertise:'Software Testing, Information Security', research:'Automated testing methodologies.', publications:[] },
+    'sonali-dongare':  { name:'Prof. Sonali Dongare',  title:'Asst. Professor',      email:'sonali.dongare@nmiet.edu.in',  photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mrs-sonali-dongre.png',         qual:'ME (Computer Engg)', qualExtra:'BE', expTotal:'19', expTeach:'19', expertise:'Programming, DSA, Machine Learning, Web Dev', research:'Machine learning applications in education.', publications:['Int. Journal - 10 papers','Int. Conference - 4 papers','Copyright & Patent - 5 Copyrights, 1 Patent'] },
+    'vivek-nagargoje': { name:'Prof. Vivek Nagargoje', title:'Asst. Professor',      email:'vivek.nagargoje@nmiet.edu.in', photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mr-niraj.png',                 qual:'PhD (Pursuing), ME (IT)', qualExtra:'BE', expTotal:'17', expTeach:'17', expertise:'Cloud Computing', research:'Cloud resource scheduling.', publications:['Int. Journal - 4 papers','Int. Conference - 1 paper','Copyright & Patent - 1 Copyright, 2 Patents'] },
+    'vanita-deshmukh': { name:'Prof. Vanita Deshmukh', title:'Asst. Professor',      email:'vanita.deshmukh@nmiet.edu.in', photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/11/prof-sunita-deskmukha.png',   qual:'ME (E&C)', qualExtra:'BE', expTotal:'3',  expTeach:'3',  expertise:'Data Communication', research:'Signal processing.', publications:[] },
+    'hemlata-mane':    { name:'Prof. Hemlata Mane',    title:'Asst. Professor',      email:'hemlata.mane@nmiet.edu.in',    photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/hemlata-mane.png',             qual:'ME (Computer Engg)', qualExtra:'BE (IT)', expTotal:'5', expTeach:'5', expertise:'Software Testing, Information Security, Web Dev', research:'Web security and usability.', publications:['Int. Journal - 10 papers','Int. Conference - 4 papers','Copyright & Patent - 5 Copyrights, 1 Patent'] },
+    'bharti-dhote':    { name:'Prof. Bharti Dhote',    title:'Asst. Professor',      email:'bharti.dhote@nmiet.edu.in',    photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mrs-bharti.png',              qual:'PhD (Pursuing), ME (Computer Engg)', qualExtra:'BE', expTotal:'19', expTeach:'19', expertise:'Data Structure, Theory of Computation', research:'Automata theory applications.', publications:['Int. Journal - 4 papers','Int. Conference - 1 paper','Copyright & Patent - 1'] },
+    'ajay-sonawane':   { name:'Prof. Ajay Sonawane',   title:'Asst. Professor',      email:'ajay.sonawane@nmiet.edu.in',   photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/11/prof-ajay-tukaram-sonawane.png', qual:'PhD (Pursuing), MTech (CSE)', qualExtra:'BE', expTotal:'7', expTeach:'7', expertise:'Machine Learning, Deep Learning, Data Science', research:'Deep learning for medical imaging.', publications:['Int. Journal - 8 papers','Int. Conference - 4 papers','Copyright & Patent - 1 Copyright, 1 Patent'] },
+};
 
 /* ═══════════════════════════════════════════════════════════
-   RENDER FACULTY PROFILE CARD
+   ATTENDANCE  — stored per student roll in localStorage
 ═══════════════════════════════════════════════════════════ */
-function renderFacultyCard() {
-    const d   = loadFac();
-    const ph  = d.photo || 'faculty-default.png';
-    const pub = (d.publications || []).length;
+function attKey(roll)   { return `att_${roll}`; }
+function loadAtt(roll)  {
+    try { return JSON.parse(localStorage.getItem(attKey(roll))) || { total:0, present:0 }; }
+    catch(e) { return { total:0, present:0 }; }
+}
+function saveAtt(roll, data) { localStorage.setItem(attKey(roll), JSON.stringify(data)); }
 
-    const tagsHtml = `
-        ${d.qual     ? `<span class="fpc-tag qual"><i class="fas fa-graduation-cap"></i>${d.qual}</span>` : ''}
-        ${d.expTotal ? `<span class="fpc-tag exp"><i class="fas fa-briefcase"></i>${d.expTotal} yrs exp</span>` : ''}
-        ${d.expertise? `<span class="fpc-tag expert"><i class="fas fa-code"></i>${d.expertise}</span>` : ''}
-        ${pub        ? `<span class="fpc-tag pub"><i class="fas fa-book"></i>${pub} Publication${pub>1?'s':''}</span>` : ''}
-    `;
+/* ═══════════════════════════════════════════════════════════
+   MARKS  — stored per student roll in localStorage
+═══════════════════════════════════════════════════════════ */
+function marksKey(roll)  { return `marks_${roll}`; }
+function loadMarks(roll) {
+    try { return JSON.parse(localStorage.getItem(marksKey(roll))) || []; }
+    catch(e) { return []; }
+}
+function saveMarks(roll, data) { localStorage.setItem(marksKey(roll), JSON.stringify(data)); }
 
-    const extraHtml = (d.research || d.qualExtra || pub) ? `
-        <div class="fpc-extra ${(d.research||d.qualExtra||pub)?'visible':''}">
-            ${d.qualExtra ? `<div class="fpc-extra-row"><strong>Degrees:</strong> ${d.qualExtra}</div>` : ''}
-            ${d.expTeach  ? `<div class="fpc-extra-row"><strong>Teaching Exp:</strong> ${d.expTeach} years</div>` : ''}
-            ${d.research  ? `<div class="fpc-extra-row"><strong>Research:</strong> ${d.research}</div>` : ''}
-            ${pub > 0     ? `<div class="fpc-extra-row"><strong>Publications:</strong><br>${(d.publications||[]).map(p=>`• ${p}`).join('<br>')}</div>` : ''}
-        </div>` : '';
+/* ═══════════════════════════════════════════════════════════
+   INJECT EXTRA MODALS (View / Attendance / Academics)
+   These are not in the HTML, so we add them dynamically.
+═══════════════════════════════════════════════════════════ */
+function injectModals() {
+    document.body.insertAdjacentHTML('beforeend', `
 
-    document.getElementById('faculty-profile').innerHTML = `
-        <div class="fpc-card">
-            <div class="fpc-photo-wrap">
-                <img id="fpcPhoto" class="fpc-photo" src="${ph}" alt="${d.name}"
-                     onclick="openEditModal()" title="Click to edit profile">
-                <span class="fpc-photo-badge" onclick="openEditModal()" title="Change photo">
-                    <i class="fas fa-camera"></i>
-                </span>
+    <!-- ── VIEW STUDENT MODAL ── -->
+    <div class="fd-overlay" id="viewModal" onclick="closeModal('viewModal')">
+      <div class="fd-modal narrow" onclick="event.stopPropagation()">
+        <div class="fd-mhead">
+            <h3><i class="fas fa-user-circle"></i> Student Details</h3>
+            <button class="fd-mclose" onclick="closeModal('viewModal')">&#x2715;</button>
+        </div>
+        <div class="fd-mbody" id="viewModalBody"></div>
+        <div class="fd-mfoot">
+            <button class="fd-btn-cancel" onclick="closeModal('viewModal')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ATTENDANCE MODAL ── -->
+    <div class="fd-overlay" id="attModal" onclick="closeModal('attModal')">
+      <div class="fd-modal narrow" onclick="event.stopPropagation()">
+        <div class="fd-mhead">
+            <h3><i class="fas fa-clipboard-list"></i> Attendance &mdash; <span id="attStudentName"></span></h3>
+            <button class="fd-mclose" onclick="closeModal('attModal')">&#x2715;</button>
+        </div>
+        <div class="fd-mbody">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+                <div style="background:#d1fae5;border-radius:12px;padding:16px;text-align:center;">
+                    <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;margin-bottom:4px;">Present</div>
+                    <div id="attPresent" style="font-size:28px;font-weight:800;color:#059669;">0</div>
+                </div>
+                <div style="background:#fee2e2;border-radius:12px;padding:16px;text-align:center;">
+                    <div style="font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;margin-bottom:4px;">Absent</div>
+                    <div id="attAbsent"  style="font-size:28px;font-weight:800;color:#dc2626;">0</div>
+                </div>
+                <div style="background:#dbeafe;border-radius:12px;padding:16px;text-align:center;">
+                    <div style="font-size:11px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:4px;">Percentage</div>
+                    <div id="attPercent" style="font-size:28px;font-weight:800;color:#2563eb;">--</div>
+                </div>
             </div>
-            <div class="fpc-info">
-                <h2 class="fpc-name" id="fpcName">${d.name}</h2>
-                <p class="fpc-title" id="fpcTitle">${d.title} · ${d.email}</p>
-                <div class="fpc-tags">${tagsHtml}</div>
-                ${extraHtml}
-                <div class="fpc-actions">
-                    <button class="fpc-btn edit"  onclick="openEditModal()">
-                        <i class="fas fa-pen"></i> Edit Profile
-                    </button>
-                    <button class="fpc-btn msg-s" onclick="openMsgModal('self','${d.email}','${d.name}')">
-                        <i class="fas fa-envelope"></i> Message Students
-                    </button>
-                    <button class="fpc-btn msg-p" onclick="openMsgModal('parent','parents@nmiet.edu.in','All Parents')">
-                        <i class="fas fa-users"></i> Message Parents
-                    </button>
-                    <button class="fpc-btn ann" onclick="openAnnModal()">
-                        <i class="fas fa-bullhorn"></i> Announcement
+            <div style="display:flex;gap:12px;margin-bottom:18px;">
+                <button onclick="markAtt('present')"
+                    style="flex:1;padding:13px;background:linear-gradient(135deg,#059669,#047857);
+                           color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
+                    &#x2705; Mark Present
+                </button>
+                <button onclick="markAtt('absent')"
+                    style="flex:1;padding:13px;background:linear-gradient(135deg,#dc2626,#b91c1c);
+                           color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
+                    &#x274C; Mark Absent
+                </button>
+            </div>
+            <div id="attWarning" style="display:none;background:#fef3c7;border-left:4px solid #f59e0b;
+                 padding:12px 14px;border-radius:8px;font-size:13px;color:#92400e;font-weight:600;"></div>
+        </div>
+        <div class="fd-mfoot">
+            <button class="fd-btn-cancel" onclick="closeModal('attModal')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ACADEMICS MODAL ── -->
+    <div class="fd-overlay" id="acadModal" onclick="closeModal('acadModal')">
+      <div class="fd-modal" onclick="event.stopPropagation()">
+        <div class="fd-mhead">
+            <h3><i class="fas fa-chart-bar"></i> Academics &mdash; <span id="acadStudentName"></span></h3>
+            <button class="fd-mclose" onclick="closeModal('acadModal')">&#x2715;</button>
+        </div>
+        <div class="fd-mbody">
+            <div class="fd-stitle">Add / Update Marks</div>
+            <div class="fd-row" style="margin-bottom:10px;">
+                <div class="fd-fg">
+                    <label><i class="fas fa-book"></i> Subject</label>
+                    <input type="text" id="acadSubject" placeholder="e.g. Data Structures">
+                </div>
+                <div class="fd-fg">
+                    <label><i class="fas fa-star"></i> Marks (out of 100)</label>
+                    <input type="number" id="acadMarks" placeholder="e.g. 78" min="0" max="100">
+                </div>
+            </div>
+            <div class="fd-row" style="margin-bottom:16px;">
+                <div class="fd-fg">
+                    <label><i class="fas fa-graduation-cap"></i> Grade</label>
+                    <select id="acadGrade">
+                        <option value="">-- Select Grade --</option>
+                        <option>O (Outstanding)</option>
+                        <option>A+ (Excellent)</option>
+                        <option>A (Very Good)</option>
+                        <option>B+ (Good)</option>
+                        <option>B (Above Average)</option>
+                        <option>C (Average)</option>
+                        <option>D (Pass)</option>
+                        <option>F (Fail)</option>
+                    </select>
+                </div>
+                <div class="fd-fg" style="justify-content:flex-end;">
+                    <button onclick="addAcadMarks()"
+                        style="padding:11px 20px;background:linear-gradient(135deg,#2563eb,#1d4ed8);
+                               color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer;
+                               font-size:14px;align-self:flex-end;display:flex;align-items:center;gap:6px;">
+                        <i class="fas fa-plus"></i> Add
                     </button>
                 </div>
             </div>
-        </div>
-    `;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   RENDER STUDENTS TABLE
-═══════════════════════════════════════════════════════════ */
-let allStudents = DEFAULT_STUDENTS;
-
-/* initStudents is now replaced by initBatchUI — kept for compat */
-function initStudents() { initBatchUI(); }
-
-function renderStudents(list) {
-    const tbody = document.getElementById('students-tbody');
-    const noRes = document.getElementById('no-results');
-    if (!list.length) { tbody.innerHTML=''; noRes.style.display='block'; return; }
-    noRes.style.display = 'none';
-    tbody.innerHTML = list.map((s,i) => `
-        <tr>
-            <td>${s.name}</td>
-            <td>${s.roll}</td>
-            <td>${s.div}</td>
-            <td>${s.contact}</td>
-            <td>${s.email}</td>
-            <td style="display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;">
-                <button class="tbl-btn view" onclick="viewStudent(${i})"><i class="fas fa-eye"></i> View</button>
-                <button class="tbl-btn msg-s" onclick="openMsgModal('student','${s.email}','${s.name}')">
-                    <i class="fas fa-envelope"></i> Msg Student
-                </button>
-                <button class="tbl-btn msg-p" onclick="openMsgModal('parent','parent_${s.roll}@nmiet.edu.in','${s.parent||'Parent of '+s.name}')">
-                    <i class="fas fa-user-friends"></i> Msg Parent
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function viewStudent(i) {
-    const s = allStudents[i];
-    alert(`Student: ${s.name}\nRoll: ${s.roll} | Class: ${s.div}\nContact: ${s.contact}\nEmail: ${s.email}`);
-}
-
-/* ── Search — filters within the active batch ── */
-document.addEventListener('DOMContentLoaded', () => {
-    const inp = document.getElementById('search-input');
-    if (inp) inp.addEventListener('input', () => {
-        const q = inp.value.trim().toLowerCase();
-        const batches = getBatchData()[_batchType];
-        const batch   = batches[_batchIndex] || batches[0];
-        const base    = batch ? batch.students : [];
-        renderStudents(q
-            ? base.filter(s =>
-                s.name.toLowerCase().includes(q) ||
-                s.roll.toLowerCase().includes(q)  ||
-                s.email.toLowerCase().includes(q))
-            : base);
-    });
-});
-
-/* ═══════════════════════════════════════════════════════════
-   EDIT MODAL
-═══════════════════════════════════════════════════════════ */
-let _pendingFacPhoto = null;
-let _pubCount = 0;
-
-document.getElementById('facPhotoInput').addEventListener('change', function() {
-    const f = this.files[0];
-    if (!f) return;
-    if (f.size > 5*1024*1024) { alert('Max 5 MB.'); return; }
-    const r = new FileReader();
-    r.onload = e => {
-        _pendingFacPhoto = e.target.result;
-        document.getElementById('facPhotoPrev').src = _pendingFacPhoto;
-    };
-    r.readAsDataURL(f);
-});
-
-function addPubRow(val='') {
-    _pubCount++;
-    const id = `pub_${_pubCount}`;
-    const div = document.createElement('div');
-    div.id = id;
-    div.style = 'display:flex;gap:8px;align-items:center;';
-    div.innerHTML = `
-        <input type="text" value="${val.replace(/"/g,'&quot;')}"
-               placeholder="Paper title, Journal, Year"
-               style="flex:1;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;font-family:inherit;">
-        <button onclick="document.getElementById('${id}').remove()"
-                style="background:none;border:1.5px solid #d1d5db;border-radius:8px;
-                       color:#dc2626;padding:9px 11px;cursor:pointer;font-size:13px;">
-            <i class="fas fa-trash-alt"></i>
-        </button>`;
-    document.getElementById('fPubList').appendChild(div);
-}
-
-function openEditModal() {
-    const d = loadFac();
-    _pendingFacPhoto = null;
-    document.getElementById('fEdit_name').value       = d.name;
-    document.getElementById('fEdit_title').value      = d.title;
-    document.getElementById('fEdit_email').value      = d.email;
-    document.getElementById('fEdit_qual').value       = d.qual;
-    document.getElementById('fEdit_qualExtra').value  = d.qualExtra;
-    document.getElementById('fEdit_expTotal').value   = d.expTotal;
-    document.getElementById('fEdit_expTeach').value   = d.expTeach;
-    document.getElementById('fEdit_expertise').value  = d.expertise;
-    document.getElementById('fEdit_research').value   = d.research;
-
-    document.getElementById('fPubList').innerHTML = '';
-    _pubCount = 0;
-    const pubs = d.publications || [];
-    if (pubs.length) pubs.forEach(p => addPubRow(p));
-    else addPubRow();
-
-    document.getElementById('facPhotoPrev').src = d.photo || 'faculty-default.png';
-    openModal('editModal');
-}
-
-function saveFacultyEdit() {
-    const prev = loadFac();
-    const pubs = [...document.querySelectorAll('#fPubList input')]
-                    .map(i=>i.value.trim()).filter(Boolean);
-    const data = {
-        ...prev,
-        name:         document.getElementById('fEdit_name').value.trim()      || prev.name,
-        title:        document.getElementById('fEdit_title').value.trim()     || prev.title,
-        email:        document.getElementById('fEdit_email').value.trim()     || prev.email,
-        qual:         document.getElementById('fEdit_qual').value.trim(),
-        qualExtra:    document.getElementById('fEdit_qualExtra').value.trim(),
-        expTotal:     document.getElementById('fEdit_expTotal').value.trim(),
-        expTeach:     document.getElementById('fEdit_expTeach').value.trim(),
-        expertise:    document.getElementById('fEdit_expertise').value.trim(),
-        research:     document.getElementById('fEdit_research').value.trim(),
-        publications: pubs,
-        photo:        _pendingFacPhoto || prev.photo
-    };
-    saveFac(data);
-    renderFacultyCard();
-    closeModal('editModal');
-    showToast('Faculty profile updated!');
-}
-
-/* ═══════════════════════════════════════════════════════════
-   MESSAGE MODAL
-═══════════════════════════════════════════════════════════ */
-let _msgType = '';
-
-function openMsgModal(type, toEmail, toName) {
-    _msgType = type;
-    document.getElementById('msgModalTitle').textContent =
-        type === 'parent' ? 'Message Parent' : 'Message Student';
-    document.getElementById('msgTo').value      = `${toName} <${toEmail}>`;
-    document.getElementById('msgSubject').value = '';
-    document.getElementById('msgBody').value    = '';
-    openModal('msgModal');
-}
-
-function sendMessage() {
-    const to      = document.getElementById('msgTo').value.trim();
-    const subject = document.getElementById('msgSubject').value.trim();
-    const body    = document.getElementById('msgBody').value.trim();
-    if (!subject || !body) { alert('Please fill in Subject and Message.'); return; }
-
-    const msgs = loadMsg();
-    msgs.unshift({
-        to, subject, body, type: _msgType,
-        from: loadFac().name,
-        date: new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
-        time: new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' })
-    });
-    saveMsg(msgs);
-    closeModal('msgModal');
-    showToast(`Message sent to ${to.split('<')[0].trim()}!`);
-}
-
-/* ═══════════════════════════════════════════════════════════
-   ANNOUNCEMENT MODAL & PANEL
-═══════════════════════════════════════════════════════════ */
-function openAnnModal() {
-    document.getElementById('annTitle').value = '';
-    document.getElementById('annBody').value  = '';
-    document.querySelector('input[name="annFor"][value="student"]').checked = true;
-    openModal('annModal');
-}
-
-function postAnnouncement() {
-    const title = document.getElementById('annTitle').value.trim();
-    const body  = document.getElementById('annBody').value.trim();
-    const forVal = document.querySelector('input[name="annFor"]:checked').value;
-    if (!title || !body) { alert('Please enter a title and message.'); return; }
-
-    const anns = loadAnn();
-    anns.unshift({
-        id:    Date.now(),
-        title, body, for: forVal,
-        author: loadFac().name,
-        date:   new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
-    });
-    saveAnn(anns);
-    renderAnnouncements();
-    closeModal('annModal');
-    showToast('Announcement posted!');
-}
-
-function deleteAnnouncement(id) {
-    if (!confirm('Delete this announcement?')) return;
-    saveAnn(loadAnn().filter(a => a.id !== id));
-    renderAnnouncements();
-    showToast('Announcement deleted.');
-}
-
-function renderAnnouncements() {
-    const anns  = loadAnn();
-    const list  = document.getElementById('annList');
-    const empty = document.getElementById('annEmpty');
-    if (!anns.length) {
-        list.innerHTML = '<div class="ann-empty" id="annEmpty">No announcements yet. Create one above.</div>';
-        return;
-    }
-    const labelMap = { student:'Students', parent:'Parents', both:'Students & Parents' };
-    const badgeMap = { student:'student',  parent:'parent',  both:'both' };
-    list.innerHTML = anns.map(a => `
-        <div class="ann-item for-${a.for}">
-            <div class="ann-item-top">
-                <h4>${a.title}</h4>
-                <div class="ann-meta">
-                    <span class="ann-badge ${badgeMap[a.for]}">${labelMap[a.for]}</span>
-                    <span class="ann-date">${a.date} · ${a.author}</span>
-                    <button class="ann-del-btn" onclick="deleteAnnouncement(${a.id})" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
+            <div class="fd-stitle">Marks Record</div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <thead>
+                        <tr style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;">
+                            <th style="padding:10px 14px;text-align:left;border-radius:8px 0 0 0;">Subject</th>
+                            <th style="padding:10px 14px;text-align:center;">Marks</th>
+                            <th style="padding:10px 14px;text-align:center;">Grade</th>
+                            <th style="padding:10px 14px;text-align:center;border-radius:0 8px 0 0;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="acadTableBody"></tbody>
+                </table>
             </div>
-            <div class="ann-body">${a.body}</div>
+            <div id="acadEmpty" style="text-align:center;color:#9ca3af;font-size:14px;padding:20px 0;"></div>
         </div>
-    `).join('');
+        <div class="fd-mfoot">
+            <button class="fd-btn-cancel" onclick="closeModal('acadModal')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    `);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MODAL HELPERS
+   STATE
 ═══════════════════════════════════════════════════════════ */
-function openModal(id) {
-    document.getElementById(id).classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-    document.body.style.overflow = '';
-}
-function closeOnOverlay(e, id) {
-    if (e.target === document.getElementById(id)) closeModal(id);
-}
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') ['editModal','msgModal','annModal'].forEach(closeModal);
-});
-
-/* ═══════════════════════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════════════════════ */
-function showToast(msg='Done!') {
-    const t = document.getElementById('fdToast');
-    document.getElementById('fdToastMsg').textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3400);
-}
+let _currentFacultyKey = '';
+let _allStudents       = [];
+let _attRoll           = '';
+let _acadRoll          = '';
 
 /* ═══════════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', () => {
-    renderFacultyCard();
-    initBatchUI();
-    renderAnnouncements();
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Inject the 3 extra modals
+    injectModals();
+
+    // 2. Read which faculty from URL
+    const params = new URLSearchParams(window.location.search);
+    _currentFacultyKey = params.get('faculty') || 'nitin-dhawas';
+
+    // 3. Seed faculty profile data into localStorage (only if not already customised)
+    const profile = facultyProfiles[_currentFacultyKey];
+    if (profile && !localStorage.getItem('faculty_profile_v1')) {
+        localStorage.setItem('faculty_profile_v1', JSON.stringify(profile));
+    }
+
+    // 4. Load students & expose to inline script
+    _allStudents = facultyStudentData[_currentFacultyKey] || [];
+    window.STUDENTS = _allStudents;
+
+    // 5. Render students table now
+    renderStudentRows(_allStudents);
+
+    // 6. Wire up search
+    setupSearch();
+
+    // 7. Escape key closes all modals
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            ['viewModal','attModal','acadModal'].forEach(id => closeModal(id));
+        }
+    });
 });
-</script>
-</body>
-</html>
+
+/* ═══════════════════════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════════════════════ */
+function setupSearch() {
+    const inp = document.getElementById('search-input');
+    const btn = document.querySelector('.search-btn');
+    if (!inp) return;
+
+    const doSearch = () => {
+        const q = inp.value.trim().toLowerCase();
+        const filtered = q
+            ? _allStudents.filter(s =>
+                s.name.toLowerCase().includes(q) ||
+                s.roll.toString().includes(q)    ||
+                s.email.toLowerCase().includes(q))
+            : _allStudents;
+        renderStudentRows(filtered);
+    };
+
+    inp.addEventListener('input', doSearch);
+    btn && btn.addEventListener('click', doSearch);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER STUDENT TABLE
+   (also exposed as window.renderStudents so inline script
+    initStudents() can call it too)
+═══════════════════════════════════════════════════════════ */
+window.renderStudents  = function(list) { renderStudentRows(list); };
+window.initStudents    = function() {
+    if (window.STUDENTS) _allStudents = window.STUDENTS;
+    renderStudentRows(_allStudents);
+};
+
+function renderStudentRows(list) {
+    const tbody = document.getElementById('students-tbody');
+    const noRes = document.getElementById('no-results');
+    if (!tbody) return;
+
+    if (!list || !list.length) {
+        tbody.innerHTML = '';
+        if (noRes) noRes.style.display = 'block';
+        return;
+    }
+    if (noRes) noRes.style.display = 'none';
+
+    tbody.innerHTML = list.map((s) => {
+        const idx = _allStudents.indexOf(s);
+        return `
+        <tr>
+            <td><strong>${s.name}</strong></td>
+            <td>${s.roll}</td>
+            <td>${s.div}</td>
+            <td>${s.contact}</td>
+            <td>${s.email}</td>
+            <td>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0;">
+                    <button class="tbl-btn view"
+                            onclick="openViewModal(${idx})" title="View student details">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="tbl-btn msg-s"
+                            onclick="openMsgModal('student','${s.email}','${s.name}')" title="Message Student">
+                        <i class="fas fa-envelope"></i> Msg Student
+                    </button>
+                    <button class="tbl-btn msg-p"
+                            onclick="openMsgModal('parent','parent_${s.roll}@nmiet.edu.in','${s.parent || 'Parent of '+s.name}')" title="Message Parent">
+                        <i class="fas fa-user-friends"></i> Msg Parent
+                    </button>
+                    <button class="tbl-btn"
+                            style="background:#f3e8ff;color:#6b21a8;"
+                            onclick="openAttModal(${idx})" title="Manage attendance">
+                        <i class="fas fa-clipboard-list"></i> Attendance
+                    </button>
+                    <button class="tbl-btn"
+                            style="background:#fef3c7;color:#92400e;"
+                            onclick="openAcadModal(${idx})" title="View academics">
+                        <i class="fas fa-chart-bar"></i> Academics
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW STUDENT — redirects to student.html with URL params
+   student.html already reads these params and populates the
+   profile card automatically.
+═══════════════════════════════════════════════════════════ */
+window.openViewModal = function(idx) {
+    const s = _allStudents[idx];
+    if (!s) return;
+
+    const params = new URLSearchParams({
+        name:    s.name,
+        roll:    s.roll,
+        div:     s.div,
+        contact: s.contact,
+        email:   s.email,
+        parent:  s.parent || ''
+    });
+
+    window.location.href = 'student.html?' + params.toString();
+};
+
+/* ═══════════════════════════════════════════════════════════
+   ATTENDANCE MODAL
+═══════════════════════════════════════════════════════════ */
+window.openAttModal = function(idx) {
+    const s = _allStudents[idx];
+    if (!s) return;
+    _attRoll = s.roll;
+    document.getElementById('attStudentName').textContent = s.name;
+    refreshAttUI();
+    openModal('attModal');
+};
+
+function refreshAttUI() {
+    const att    = loadAtt(_attRoll);
+    const absent = att.total - att.present;
+    const pct    = att.total ? Math.round((att.present / att.total) * 100) : null;
+
+    document.getElementById('attPresent').textContent = att.present;
+    document.getElementById('attAbsent').textContent  = absent;
+    document.getElementById('attPercent').textContent = pct !== null ? pct + '%' : '--';
+
+    const warn = document.getElementById('attWarning');
+    if (pct !== null && pct < 75) {
+        warn.style.display = 'block';
+        warn.textContent   = '\u26A0\uFE0F Attendance is ' + pct + '% — below the 75% required threshold!';
+    } else {
+        warn.style.display = 'none';
+    }
+}
+
+window.markAtt = function(type) {
+    const att = loadAtt(_attRoll);
+    att.total++;
+    if (type === 'present') att.present++;
+    saveAtt(_attRoll, att);
+    refreshAttUI();
+    if (typeof showToast === 'function') showToast('Marked ' + type + ' for today!');
+};
+
+/* ═══════════════════════════════════════════════════════════
+   ACADEMICS MODAL
+═══════════════════════════════════════════════════════════ */
+window.openAcadModal = function(idx) {
+    const s = _allStudents[idx];
+    if (!s) return;
+    _acadRoll = s.roll;
+    document.getElementById('acadStudentName').textContent = s.name;
+    // clear add-form
+    document.getElementById('acadSubject').value = '';
+    document.getElementById('acadMarks').value   = '';
+    document.getElementById('acadGrade').value   = '';
+    renderMarksTable();
+    openModal('acadModal');
+};
+
+function renderMarksTable() {
+    const marks = loadMarks(_acadRoll);
+    const tbody = document.getElementById('acadTableBody');
+    const empty = document.getElementById('acadEmpty');
+
+    if (!marks.length) {
+        tbody.innerHTML  = '';
+        empty.textContent = 'No marks recorded yet. Add subjects above.';
+        return;
+    }
+    empty.textContent = '';
+    tbody.innerHTML = marks.map((m, i) => `
+        <tr style="border-bottom:1px solid #e5e7eb;background:${i % 2 === 0 ? '#f9fafb' : '#fff'};">
+            <td style="padding:10px 14px;font-weight:600;color:#111827;">${m.subject}</td>
+            <td style="padding:10px 14px;text-align:center;font-weight:700;color:#2563eb;">${m.marks}</td>
+            <td style="padding:10px 14px;text-align:center;">
+                <span style="background:#dbeafe;color:#1e40af;padding:3px 11px;
+                             border-radius:20px;font-size:12px;font-weight:700;">${m.grade}</span>
+            </td>
+            <td style="padding:10px 14px;text-align:center;">
+                <button onclick="deleteMarksRow(${i})"
+                    style="background:#fee2e2;color:#dc2626;border:none;border-radius:7px;
+                           padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600;">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </td>
+        </tr>`).join('');
+}
+
+window.addAcadMarks = function() {
+    const subject = document.getElementById('acadSubject').value.trim();
+    const marks   = parseInt(document.getElementById('acadMarks').value);
+    const grade   = document.getElementById('acadGrade').value;
+
+    if (!subject || isNaN(marks) || !grade) { alert('Please fill in all fields.'); return; }
+    if (marks < 0 || marks > 100)           { alert('Marks must be between 0 and 100.'); return; }
+
+    const list = loadMarks(_acadRoll);
+    list.push({ subject, marks, grade });
+    saveMarks(_acadRoll, list);
+
+    document.getElementById('acadSubject').value = '';
+    document.getElementById('acadMarks').value   = '';
+    document.getElementById('acadGrade').value   = '';
+
+    renderMarksTable();
+    if (typeof showToast === 'function') showToast('Marks saved successfully!');
+};
+
+window.deleteMarksRow = function(idx) {
+    if (!confirm('Delete this marks entry?')) return;
+    const list = loadMarks(_acadRoll);
+    list.splice(idx, 1);
+    saveMarks(_acadRoll, list);
+    renderMarksTable();
+};
