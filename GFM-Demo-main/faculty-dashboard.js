@@ -208,12 +208,28 @@ function loadFacultyProfile() {
 }
 
 
-// Load students
-function loadStudents() {
-    const students = facultyStudentData[currentFacultyName] || [];
-    allStudents = students;
-    renderStudents(students);
-}
+document.addEventListener("DOMContentLoaded", function () {
+    const tbody = document.getElementById("students-tbody");
+
+    if (!tbody) {
+        console.error("students-tbody not found in HTML");
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td>Amit Patil</td>
+            <td>70</td>
+            <td>TE-IT</td>
+            <td>9876543210</td>
+            <td>amit@nmiet.edu.in</td>
+            <td>
+                <button>Edit</button>
+                <button>Message</button>
+            </td>
+        </tr>
+    `;
+});
 
 // Render students in table
 function renderStudents(students) {
