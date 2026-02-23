@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const editModal = document.getElementById('editModal');
     const deleteModal = document.getElementById('deleteModal');
 
-    const closeModal = document.querySelector('.close-modal');
+    const closeEdit = document.querySelector('.close-edit');
     const closeDelete = document.querySelector('.close-delete');
+
+    const editForm = document.getElementById('editForm');
 
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
-
-    const editForm = document.getElementById('editForm');
 
     const profileCard = document.querySelector('.profile-card');
 
@@ -20,49 +20,59 @@ document.addEventListener('DOMContentLoaded', function () {
     const titleField = document.querySelector('.title');
     const deptField = document.querySelector('.department');
 
-    // ===== OPEN EDIT =====
-    editBtn.addEventListener('click', function () {
-        editModal.style.display = 'block';
+    // ===== EDIT BUTTON =====
+    if (editBtn) {
+        editBtn.addEventListener('click', function () {
+            editModal.style.display = 'block';
 
-        document.getElementById('editName').value = nameField.textContent;
-        document.getElementById('editTitle').value = titleField.textContent;
-        document.getElementById('editDepartment').value = deptField.textContent;
-    });
+            document.getElementById('editName').value = nameField.textContent;
+            document.getElementById('editTitle').value = titleField.textContent;
+            document.getElementById('editDepartment').value = deptField.textContent;
+        });
+    }
 
-    // ===== CLOSE EDIT =====
-    closeModal.addEventListener('click', function () {
-        editModal.style.display = 'none';
-    });
+    if (closeEdit) {
+        closeEdit.addEventListener('click', function () {
+            editModal.style.display = 'none';
+        });
+    }
 
-    // ===== SAVE EDIT =====
-    editForm.addEventListener('submit', function (e) {
-        e.preventDefault();
+    if (editForm) {
+        editForm.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        nameField.textContent = document.getElementById('editName').value;
-        titleField.textContent = document.getElementById('editTitle').value;
-        deptField.textContent = document.getElementById('editDepartment').value;
+            nameField.textContent = document.getElementById('editName').value;
+            titleField.textContent = document.getElementById('editTitle').value;
+            deptField.textContent = document.getElementById('editDepartment').value;
 
-        editModal.style.display = 'none';
-    });
+            editModal.style.display = 'none';
+        });
+    }
 
-    // ===== OPEN DELETE =====
-    deleteBtn.addEventListener('click', function () {
-        deleteModal.style.display = 'block';
-    });
+    // ===== DELETE BUTTON =====
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function () {
+            deleteModal.style.display = 'block';
+        });
+    }
 
-    // ===== CANCEL DELETE =====
-    cancelDelete.addEventListener('click', function () {
-        deleteModal.style.display = 'none';
-    });
+    if (closeDelete) {
+        closeDelete.addEventListener('click', function () {
+            deleteModal.style.display = 'none';
+        });
+    }
 
-    closeDelete.addEventListener('click', function () {
-        deleteModal.style.display = 'none';
-    });
+    if (cancelDelete) {
+        cancelDelete.addEventListener('click', function () {
+            deleteModal.style.display = 'none';
+        });
+    }
 
-    // ===== CONFIRM DELETE =====
-    confirmDelete.addEventListener('click', function () {
-        profileCard.style.display = 'none';
-        deleteModal.style.display = 'none';
-    });
+    if (confirmDelete) {
+        confirmDelete.addEventListener('click', function () {
+            profileCard.style.display = 'none';
+            deleteModal.style.display = 'none';
+        });
+    }
 
 });
