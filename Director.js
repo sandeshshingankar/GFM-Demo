@@ -1,85 +1,79 @@
 document.addEventListener('DOMContentLoaded', function () {
+    loadDepartments();
+    loadNotices();
+});
 
-    const profileCard = document.querySelector('.profile-card');
-    const nameField = document.querySelector('.profile-info h2');
-    const titleField = document.querySelector('.title');
-    const deptField = document.querySelector('.department');
+function openPanel(panelId) {
 
-    const editModal = document.getElementById('editModal');
-    const deleteModal = document.getElementById('deleteModal');
+    const panels = document.querySelectorAll('.dynamic-panel');
 
-    const editForm = document.getElementById('editForm');
-
-    // ================= LOAD SAVED DATA =================
-    const savedData = JSON.parse(localStorage.getItem('directorData'));
-
-    if (savedData) {
-        nameField.textContent = savedData.name;
-        titleField.textContent = savedData.title;
-        deptField.textContent = savedData.department;
-    }
-
-    if (localStorage.getItem('directorDeleted') === 'true') {
-        profileCard.style.display = 'none';
-    }
-
-    // ================= CLICK EVENTS =================
-    document.addEventListener('click', function (e) {
-
-        // OPEN EDIT
-        if (e.target.classList.contains('edit-btn')) {
-            editModal.style.display = 'block';
-
-            document.getElementById('editName').value = nameField.textContent;
-            document.getElementById('editTitle').value = titleField.textContent;
-            document.getElementById('editDepartment').value = deptField.textContent;
-        }
-
-        // CLOSE EDIT
-        if (e.target.classList.contains('close-edit')) {
-            editModal.style.display = 'none';
-        }
-
-        // OPEN DELETE
-        if (e.target.classList.contains('delete-btn')) {
-            deleteModal.style.display = 'block';
-        }
-
-        // CLOSE DELETE
-        if (e.target.classList.contains('close-delete') ||
-            e.target.classList.contains('cancel-btn')) {
-
-            deleteModal.style.display = 'none';
-        }
-
-        // CONFIRM DELETE
-        if (e.target.id === 'confirmDelete') {
-            profileCard.style.display = 'none';
-            localStorage.setItem('directorDeleted', 'true');
-            deleteModal.style.display = 'none';
-        }
-
+    panels.forEach(panel => {
+        panel.style.display = 'none';
     });
 
-    // ================= SAVE EDIT =================
-    if (editForm) {
-        editForm.addEventListener('submit', function (e) {
-            e.preventDefault();
+    document.getElementById(panelId).style.display = 'block';
+}
 
-            const updatedData = {
-                name: document.getElementById('editName').value,
-                title: document.getElementById('editTitle').value,
-                department: document.getElementById('editDepartment').value
-            };
 
-            localStorage.setItem('directorData', JSON.stringify(updatedData));
+// ================= DEPARTMENTS =================
 
-            nameField.textContent = updatedData.name;
-            titleField.textContent = updatedData.title;
-            deptField.textContent = updatedData.department;
+function addDepartment() {
 
-            editModal.style.display = 'none';
-        });
-    }
+    const deptInput = document.getElementById('newDept');
+    const deptName = deptInput.value.trim();
 
-});
+    if (!deptName) return;
+
+    let departments = JSON.parse(localStorage.getItem('departments')) || [];
+    departments.push(deptName);
+
+    localStorage.setItem('departments', JSON.stringify(departments));
+
+    deptInput.value = '';
+    loadDepartments();
+}
+
+function loadDepartments() {
+
+    const deptList = document.getElementById('deptList');
+    deptList.innerHTML = '';
+
+    let departments = JSON.parse(localStorage.getItem('departments')) || [];
+
+    departments.forEach(dept => {
+        const li = document.createElement('li');
+        li.textContent = dept;
+        deptList.appendChild(li);
+    });
+}
+
+
+// ================= NOTICES =================
+
+function publishNotice() {
+
+    const noticeText = document.getElementById('noticeText').value.trim();
+    if (!noticeText) return;
+
+    let notices = JSON.parse(localStorage.getItem('notices')) || [];
+    notices.push(noticeText);
+
+    localStorage.setItem('notices', JSON.stringify(notices));
+
+    document.getElementById('noticeText').value = '';
+    loadNotices();
+}
+
+function loadNotices() {
+
+    const noticeList = document.getElementById('noticeList');
+    noticeList.innerHTML = '';
+
+    let notices = JSON.parse(localStorage.getItem('notices')) || [];
+
+    notices.forEach(n => {
+        const li = document.createElement('li');
+        li.textContent = n;
+        noticeList.appendChild(li);
+    });
+}
