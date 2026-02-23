@@ -97,8 +97,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ================= CREATE FACULTY CARD (helper) =================
     function createFacultyCard(name, role, students, image) {
-        const wrapper = document.createElement("div");
+        const wrapper = document.createElement("a");
         wrapper.className = "faculty-card-link dynamic-card";
+
+        const key = name.toLowerCase().replace(/\s+/g, '-');
+        wrapper.href = "faculty-dashboard.html?faculty=" + key;
 
         wrapper.innerHTML = `
             <div class="faculty-card">
