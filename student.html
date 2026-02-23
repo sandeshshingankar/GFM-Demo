@@ -704,20 +704,67 @@
 <script src="scroll-to-top.js"></script>
 
 <script>
-/* ─── URL PARAMS (original behaviour, kept intact) ─── */
+/* ─── URL PARAMS — populate profile from faculty-dashboard View button ─── */
 (function () {
-    const p     = new URLSearchParams(window.location.search);
-    const name  = p.get('name')  || '';
-    const roll  = p.get('roll')  || '';
-    const email = p.get('email') || '';
+    const p       = new URLSearchParams(window.location.search);
+    const name    = p.get('name')    || '';
+    const roll    = p.get('roll')    || '';
+    const email   = p.get('email')   || '';
+    const div     = p.get('div')     || '';
+    const contact = p.get('contact') || '';
+    const parent  = p.get('parent')  || '';
+
+    /* Only run if we arrived from faculty-dashboard (i.e. params exist) */
+    if (!name && !roll) return;
+
     const g = id => document.getElementById(id);
 
-    if (g('studentName'))        g('studentName').textContent        = name;
-    if (g('studentRoll'))        g('studentRoll').textContent        = roll;
-    if (g('studentEmail'))       g('studentEmail').textContent       = email;
-    if (g('profileStudentName')) g('profileStudentName').textContent = name;
-    if (g('profileStudentRoll')) g('profileStudentRoll').textContent = roll;
-    if (g('profileStudentEmail'))g('profileStudentEmail').textContent= email;
+    /* ── Profile card fields ── */
+    if (name    && g('studentName'))     g('studentName').textContent    = name;
+    if (roll    && g('studentRoll'))     g('studentRoll').textContent    = roll;
+    if (email   && g('studentEmail'))    g('studentEmail').textContent   = email;
+    if (div     && g('displayClass'))    g('displayClass').textContent   = div;
+    if (contact && g('displayContact'))  g('displayContact').textContent = contact;
+    if (roll    && g('detailRoll'))      g('detailRoll').textContent     = roll;
+
+    /* ── Guardian / parent info in expandable section ── */
+    if (parent) {
+        /* Father field is the first guardian label — update it */
+        const fatherEl = document.querySelector('.guardian-info .detail-grid .detail-item:first-child p');
+        if (fatherEl) fatherEl.textContent = parent;
+    }
+
+    /* ── Contact in guardian section ── */
+    if (contact) {
+        const guardianContact = document.querySelector('.guardian-info .detail-item:nth-child(3) p');
+        if (guardianContact) guardianContact.textContent = contact;
+    }
+
+    /* ── Also seed localStorage so Edit modal shows correct data ── */
+    const SKEY = 'student_profile_v1';
+    const existing = (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch(e){ return {}; } })();
+    /* Only pre-fill if localStorage doesn't already have a saved name for this student */
+    if (!existing.name || existing.roll !== roll) {
+        localStorage.setItem(SKEY, JSON.stringify({
+            name,
+            roll,
+            classYear: div,
+            contact,
+            linkedin: existing.linkedin || '',
+            github:   existing.github   || '',
+            photo:    existing.photo    || ''
+        }));
+    }
+
+    /* ── Update navbar back button to go back to faculty dashboard ── */
+    const backBtn = document.querySelector('.nav-back');
+    if (backBtn) {
+        backBtn.href        = 'javascript:history.back()';
+        backBtn.textContent = '← Back to Dashboard';
+    }
+
+    /* ── Update page title ── */
+    document.title = name + ' — Student Profile';
 })();
 
 /* ─── Document upload (original, kept intact) ─── */
