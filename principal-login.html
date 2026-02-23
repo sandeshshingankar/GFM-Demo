@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Principal Login</title>
+    <title>Director Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="shared-styles.css">
     <link rel="stylesheet" href="navbar.css">
@@ -11,7 +11,7 @@
 <nav class="navbar">
     <div class="nav-container">
         <a href="index.html" class="nav-back">← Back</a>
-        <h1 class="nav-title">Principal Login</h1>
+        <h1 class="nav-title">Director Login</h1>
         <div></div>
     </div>
 </nav>
@@ -46,7 +46,7 @@ function loginPrincipal() {
     const pass = document.getElementById("password").value;
 
     if(user === "principal" && pass === "1234") {
-        window.location.href = "principal.html";
+        window.location.href = "Director.html";
         return false;
     } else {
         document.getElementById("errorMsg").innerText = "Invalid Credentials!";
