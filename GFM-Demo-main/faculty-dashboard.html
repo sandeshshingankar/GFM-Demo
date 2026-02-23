@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="faculty-dashboard.css">
     <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="js/faculty-dashboard.js"></script>
-
 </head>
 <body>
 
@@ -35,89 +33,17 @@
 </section>
 
 <!-- Main Content -->
-<main class="container"  >
+<main class="container">
     <!-- Faculty Profile Section -->
-    <!-- ===== FACULTY PROFILE ===== -->
-<section class="faculty-profile-section"> 
-    <div id="messageBox" style="display:none; margin-top:20px; background:#fff; padding:20px; border:1px solid #ccc;">
-  
-  <h3>Send Message</h3>
-
-  <label>Send To:</label>
-  <select id="messageTo">
-    <option value="students">Students</option>
-    <option value="parents">Parents</option>
-  </select>
-  <br><br>
-
-  <label>Message:</label><br>
-  <textarea id="messageText" rows="4" cols="40"></textarea>
-  <br><br>
-
-  <button onclick="sendMessage()">Send</button>
-  <button class="action-btn edit-btn" onclick="openAnnouncementBox()">
-    📢 Announcement
-</button>
-
-</div>
-
-    <div id="editProfileModal" style="display:none; padding:20px; background:#fff; border:1px solid #ccc;">
-  <h3>Edit Faculty Profile</h3>
-
-  <label>Name:</label>
-  <input type="text" id="editName"><br><br>
-
-  <label>Department:</label>
-  <input type="text" id="editDept"><br><br>
-
-  <button onclick="saveProfile()">Save</button>
-</div>
-
-
-    <div class="faculty-profile-card">
-
-        <img src="faculty.jpg"
-             alt="Faculty Profile"
-             class="faculty-profile-image">
-
-        <div class="faculty-profile-info">
-            <h2>Prof. Nitin Wankhade</h2>
-            <p class="designation">Assistant Professor – IT Department</p>
-
-            <div class="faculty-detail-item">
-                <strong>Email</strong>
-                nitin.wankhade@nmiet.edu.in
-            </div>
-
-            <div class="faculty-detail-item">
-                <strong>Contact</strong>
-                +91 9876543210
-            </div>
-
-            <div class="faculty-detail-item">
-                <strong>Qualification</strong>
-                M.Tech (Computer Engineering)
-            </div>
-
-            <div class="faculty-detail-item">
-                <strong>Experience</strong>
-                8 Years
-            </div>
-
-            <div class="faculty-actions">
-                <a href="#" class="action-btn btn-edit">Edit Profile</a>
-                <a href="#" class="action-btn btn-message">Message Students</a>
-            </div>
+    <section class="faculty-profile-section">
+        <div id="faculty-profile" class="faculty-profile-card">
+            <!-- Populated by JavaScript -->
         </div>
-
-    </div>
-</section>
-
+    </section>
 
     <!-- Students Section -->
     <section class="students-section">
         <div class="section-header">
-            <a href="student.html" class="table-action-btn btn-view">View</a>
             <h2>Assigned Students</h2>
             <p>View and manage all students assigned to this faculty member</p>
         </div>
@@ -215,39 +141,5 @@
 
 <script src="faculty-dashboard.js"></script>
 <script src="scroll-to-top.js"></script>
-<!-- EDIT STUDENT MODAL -->
-<div id="editStudentModal" style="display:none;" class="modal">
-    <h3>Edit Student</h3>
-
-    <label>Name</label>
-    <input type="text" id="editStudentName">
-
-    <label>Roll No</label>
-    <input type="text" id="editStudentRoll">
-
-    <label>Email</label>
-    <input type="text" id="editStudentEmail">
-
-    <br><br>
-    <button onclick="saveStudentEdit()">Save</button>
-    <button onclick="closeEditModal()">Cancel</button>
-</div>
-<!-- Announcement Box -->
-<div id="announcementBox" style="display:none;" class="popup-box">
-    <h3>Send Announcement</h3>
-
-    <textarea id="announcementText"
-        placeholder="Type announcement here..."
-        rows="4"
-        style="width:100%;"></textarea>
-
-    <br><br>
-
-    <button onclick="sendAnnouncement()">Send</button>
-    <button onclick="closeAnnouncementBox()">Cancel</button>
-
-    <p id="announcementOutput" style="color:green;margin-top:10px;"></p>
-</div>
-
 </body>
 </html>
