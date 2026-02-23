@@ -79,3 +79,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function saveAttendance() {
+  const params = new URLSearchParams(window.location.search);
+  const roll = params.get("roll");
+
+  const attendance = document.getElementById("attendanceInput").value;
+  localStorage.setItem("attendance_" + roll, attendance);
+
+  alert("Attendance saved successfully");
+}
+
+function saveMarks() {
+  const params = new URLSearchParams(window.location.search);
+  const roll = params.get("roll");
+
+  const marks = document.getElementById("marksInput").value;
+  localStorage.setItem("marks_" + roll, marks);
+
+  alert("Marks saved successfully");
+}
