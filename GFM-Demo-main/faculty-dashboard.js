@@ -406,3 +406,26 @@ const students = [
     email: "sneha@nmiet.edu.in"
   }
 ];
+function loadStudents() {
+  const tbody = document.getElementById("students-tbody");
+  tbody.innerHTML = "";
+
+  students.forEach((s) => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${s.name}</td>
+      <td>${s.roll}</td>
+      <td>${s.classDiv}</td>
+      <td>${s.contact}</td>
+      <td>${s.email}</td>
+      <td>
+        <a href="student.html?name=${s.name}&roll=${s.roll}&email=${s.email}"
+           class="action-btn btn-view">View</a>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+document.addEventListener("DOMContentLoaded", loadStudents);
