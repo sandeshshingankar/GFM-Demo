@@ -26,77 +26,60 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ================= ADD NEW HOD =================
-    addForm.addEventListener("submit", function (e) {
-        e.preventDefault();
+    // ================= IMAGE PREVIEW =================
+const imageInput = document.getElementById("newHodImage");
+const preview = document.getElementById("imagePreview");
 
-        const name = document.getElementById("newHodName").value;
-        const dept = document.getElementById("newHodDept").value;
-        const image = document.getElementById("newHodImage").value || "principal.jpg";
+let selectedImageData = "";
 
-        const newCard = document.createElement("a");
-        newCard.href = "hod.html";
-        newCard.className = "faculty-card-link";
+imageInput.addEventListener("change", function () {
+    const file = this.files[0];
 
-        newCard.innerHTML = `
-            <div class="faculty-card">
-                <div class="faculty-image">
-                    <img src="${image}" alt="${name}">
-                </div>
-                <div class="faculty-info">
-                    <h3 class="hod-name">${name}</h3>
-                    <p class="hod-dept">${dept}</p>
-                    <div class="hod-actions">
-                        <button class="edit-hod-btn">Edit</button>
-                        <button class="delete-hod-btn">Delete</button>
-                    </div>
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            selectedImageData = e.target.result;
+            preview.src = selectedImageData;
+            preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+
+// ================= ADD NEW HOD =================
+addForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById("newHodName").value;
+    const dept = document.getElementById("newHodDept").value;
+
+    const image = selectedImageData || "principal.jpg";
+
+    const newCard = document.createElement("a");
+    newCard.href = "hod.html";
+    newCard.className = "faculty-card-link";
+
+    newCard.innerHTML = `
+        <div class="faculty-card">
+            <div class="faculty-image">
+                <img src="${image}" alt="${name}">
+            </div>
+            <div class="faculty-info">
+                <h3 class="hod-name">${name}</h3>
+                <p class="hod-dept">${dept}</p>
+                <div class="hod-actions">
+                    <button class="edit-hod-btn">Edit</button>
+                    <button class="delete-hod-btn">Delete</button>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
-        grid.appendChild(newCard);
-        addModal.style.display = "none";
-        addForm.reset();
-    });
+    grid.appendChild(newCard);
 
-    // ================= EDIT & DELETE (EVENT DELEGATION) =================
-    grid.addEventListener("click", function (e) {
-
-        // DELETE
-        if (e.target.classList.contains("delete-hod-btn")) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const confirmDelete = confirm("Are you sure you want to delete this HOD?");
-            if (confirmDelete) {
-                const card = e.target.closest(".faculty-card-link");
-                if (card) {
-                    card.remove();
-                }
-            }
-        }
-
-        // EDIT
-        if (e.target.classList.contains("edit-hod-btn")) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const card = e.target.closest(".faculty-card");
-            const nameElement = card.querySelector(".hod-name");
-            const deptElement = card.querySelector(".hod-dept");
-
-            const newName = prompt("Edit HOD Name:", nameElement.textContent);
-            const newDept = prompt("Edit Department:", deptElement.textContent);
-
-            if (newName !== null && newName.trim() !== "") {
-                nameElement.textContent = newName;
-            }
-
-            if (newDept !== null && newDept.trim() !== "") {
-                deptElement.textContent = newDept;
-            }
-        }
-
-    });
-
+    addModal.style.display = "none";
+    addForm.reset();
+    preview.style.display = "none";
+    selectedImageData = "";
 });
