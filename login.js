@@ -95,7 +95,7 @@ cardLinks.forEach(card => {
 function attachRoleCardListeners() {
 
     // ---- ADMIN / STUDENT / PARENT cards ----
-    const roles = ['admin', 'faculty', 'student', 'parent', 'Director'];
+    const roles = ['admin', 'faculty', 'student', 'parent', 'principal'];
 
     roles.forEach(role => {
         const cardLink = document.querySelector(`a[href="${ROLE_PAGES[role]}"]`);
@@ -271,6 +271,7 @@ function handleCreateAccount(e) {
         "Please contact the IT Department for registration."
     );
 }
+
 
 
 
