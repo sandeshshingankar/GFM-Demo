@@ -390,3 +390,19 @@ function sendAnnouncement() {
 
     document.getElementById("announcementText").value = "";
 }
+const students = [
+  {
+    name: "Amit Patil",
+    roll: "70",
+    classDiv: "TE-IT",
+    contact: "9876543210",
+    email: "amit@nmiet.edu.in"
+  },
+  {
+    name: "Sneha Deshmukh",
+    roll: "71",
+    classDiv: "TE-IT",
+    contact: "9876543211",
+    email: "sneha@nmiet.edu.in"
+  }
+];
