@@ -214,6 +214,28 @@
             <a href="#add-faculty" class="add-btn">Add New Faculty</a>
         </div>
     </section>
+    <!-- ================= ADD FACULTY MODAL ================= -->
+<div id="addFacultyModal" class="modal">
+    <div class="modal-content">
+        <span class="close-add">&times;</span>
+        <h2>Add New Faculty</h2>
+
+        <form id="addFacultyForm">
+
+            <label>Name</label>
+            <input type="text" id="newFacultyName" required>
+
+            <label>Designation</label>
+            <input type="text" id="newFacultyRole" required>
+
+            <label>Choose Image</label>
+            <input type="file" id="newFacultyImage" accept="image/*">
+            <img id="facultyPreview" style="width:80px; margin-top:10px; display:none;">
+
+            <button type="submit" class="save-btn">Add Faculty</button>
+        </form>
+    </div>
+</div>
 
 </main>
 
