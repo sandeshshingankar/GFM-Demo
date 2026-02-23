@@ -186,8 +186,14 @@ function openLoginModal(role) {
     const modal = document.getElementById('loginModal');
     modal.dataset.currentRole = role;
 
-    document.getElementById('roleTitle').textContent =
-        role.charAt(0).toUpperCase() + role.slice(1) + ' Login';
+    let displayName = role;
+
+if (role === 'principal') {
+    displayName = 'Director';
+}
+
+document.getElementById('roleTitle').textContent =
+    displayName + ' Login';
 
     document.getElementById('demoEmail').textContent =
         DEMO_CREDENTIALS[role].email;
@@ -271,6 +277,7 @@ function handleCreateAccount(e) {
         "Please contact the IT Department for registration."
     );
 }
+
 
 
 
