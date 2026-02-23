@@ -100,4 +100,15 @@ document.getElementById("documentInput").addEventListener("change", function () 
     document.getElementById("documentName").textContent =
         "Uploaded: " + this.files[0].name;
 });
+const params = new URLSearchParams(window.location.search);
+const roll = params.get("roll");
+
+const attendance = localStorage.getItem("attendance_" + roll);
+const marks = localStorage.getItem("marks_" + roll);
+
+document.getElementById("attendanceDisplay").textContent =
+  attendance ? attendance + "%" : "Not updated";
+
+document.getElementById("marksDisplay").textContent =
+  marks ? marks : "Not updated";
 
