@@ -279,7 +279,7 @@
 <nav class="navbar">
     <div class="nav-container">
         <a href="faculty.html" class="nav-back">← Back to Faculty</a>
-        <h1 class="nav-title">Faculty Dashboard</h1>
+        <h1 class="nav-title" id="navTitle">Faculty Dashboard</h1>
         <div></div>
     </div>
 </nav>
@@ -588,32 +588,54 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   DATA — Faculty & Students
-   In production these come from faculty-dashboard.js / URL params.
-   We seed sensible defaults so the page is fully self-contained.
-═══════════════════════════════════════════════════════════ */
-const FAC_KEY = 'faculty_profile_v1';
-const ANN_KEY = 'faculty_announcements_v1';
-const MSG_KEY = 'faculty_messages_v1';
+   DATA — Per-Faculty Storage
+   Each faculty member's data is isolated using the ?faculty=
+   URL slug that faculty.html passes in the link href.
 
-/* Default faculty data (overridden if faculty-dashboard.js populates window.FACULTY_DATA) */
+   e.g.  faculty-dashboard.html?faculty=nitin-dhawas
+         → FAC_KEY = "fac_profile__nitin-dhawas"
+         → ANN_KEY = "fac_ann__nitin-dhawas"
+         → MSG_KEY = "fac_msg__nitin-dhawas"
+
+   This means editing, messaging and announcements for
+   Dr. Nitin Dhawas NEVER touch Prof. Sonali Dongare's data.
+═══════════════════════════════════════════════════════════ */
+
+/* ── 1. Read the slug from the URL ── */
+const _SLUG = (new URLSearchParams(window.location.search).get('faculty') || 'unknown').toLowerCase();
+
+/* ── 2. All storage keys are namespaced to this slug ── */
+const FAC_KEY = `fac_profile__${_SLUG}`;
+const ANN_KEY = `fac_ann__${_SLUG}`;
+const MSG_KEY = `fac_msg__${_SLUG}`;
+
+/* ── 3. Master list — one entry per faculty card in faculty.html ─────
+   Provides the correct name / photo / email on FIRST visit
+   (before the faculty member has edited their own profile).
+   Keys match the ?faculty= slug in every <a href> exactly.
+──────────────────────────────────────────────────────────────────── */
+const FACULTY_MASTER = {
+    'nitin-dhawas':    { name:'Dr. Nitin Dhawas',      title:'Professor',           email:'nitin.dhawas@nmiet.edu.in',    photo:'nitin.png' },
+    'dheeraj-patil':   { name:'Prof. Dheeraj Patil',   title:'Assistant Professor', email:'dheeraj.patil@nmiet.edu.in',   photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mr-diraj-patil.png' },
+    'nitin-wankhade':  { name:'Prof. Nitin Wankhade',  title:'Assistant Professor', email:'nitin.wankhade@nmiet.edu.in',  photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/dr-nitin-wankhande.png' },
+    'roshni-narkhede': { name:'Prof. Roshni Narkhede', title:'Assistant Professor', email:'roshni.narkhede@nmiet.edu.in', photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mrs-roshini.png' },
+    'sonali-dongare':  { name:'Prof. Sonali Dongare',  title:'Assistant Professor', email:'sonali.dongare@nmiet.edu.in',  photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mrs-sonali-dongre.png' },
+    'vivek-nagargoje': { name:'Prof. Vivek Nagargoje', title:'Assistant Professor', email:'vivek.nagargoje@nmiet.edu.in', photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mr-niraj.png' },
+    'vanita-deshmukh': { name:'Prof. Vanita Deshmukh', title:'Assistant Professor', email:'vanita.deshmukh@nmiet.edu.in', photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/11/prof-sunita-deskmukha.png' },
+    'hemlata-mane':    { name:'Prof. Hemlata Mane',    title:'Assistant Professor', email:'hemlata.mane@nmiet.edu.in',    photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/hemlata-mane.png' },
+    'bharti-dhote':    { name:'Prof. Bharti Dhote',    title:'Assistant Professor', email:'bharti.dhote@nmiet.edu.in',    photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/04/mrs-bharti.png' },
+    'ajay-sonawane':   { name:'Prof. Ajay Sonawane',   title:'Assistant Professor', email:'ajay.sonawane@nmiet.edu.in',   photo:'https://www.nmiet.edu.in/wp-content/uploads/2025/11/prof-ajay-tukaram-sonawane.png' },
+};
+
+/* ── 4. Default profile seeds from master so first visit is never blank ── */
 function defaultFaculty() {
+    const m = FACULTY_MASTER[_SLUG] || {
+        name:'Faculty Member', title:'Professor', email:'', photo:'faculty-default.png'
+    };
     return {
-        id:          'fac_001',
-        name:        'Dr. Nitin Wankhade',
-        title:       'Associate Professor',
-        email:       'nitin.wankhade@nmiet.edu.in',
-        photo:       '',
-        qual:        'Ph.D. – Computer Science',
-        qualExtra:   'M.Tech, B.E.',
-        expTotal:    '15',
-        expTeach:    '12',
-        expertise:   'Data Structures, Cloud Computing',
-        research:    'Distributed systems and cloud-native architectures.',
-        publications: [
-            'Cloud Load Balancing Techniques – IJCA 2023',
-            'Microservices Security – Springer 2022'
-        ]
+        name: m.name, title: m.title, email: m.email, photo: m.photo,
+        qual:'', qualExtra:'', expTotal:'', expTeach:'',
+        expertise:'', research:'', publications:[]
     };
 }
 
@@ -775,6 +797,11 @@ function renderFacultyCard() {
     const d   = loadFac();
     const ph  = d.photo || 'faculty-default.png';
     const pub = (d.publications || []).length;
+
+    /* ── Update browser tab & navbar with this faculty's actual name ── */
+    document.title = d.name + ' | Faculty Dashboard';
+    const nav = document.getElementById('navTitle');
+    if (nav) nav.textContent = d.name;
 
     const tagsHtml = `
         ${d.qual     ? `<span class="fpc-tag qual"><i class="fas fa-graduation-cap"></i>${d.qual}</span>` : ''}
@@ -1018,6 +1045,7 @@ function sendMessage() {
     msgs.unshift({
         to, subject, body, type: _msgType,
         from: loadFac().name,
+        faculty: _SLUG,
         date: new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
         time: new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' })
     });
@@ -1047,6 +1075,7 @@ function postAnnouncement() {
         id:    Date.now(),
         title, body, for: forVal,
         author: loadFac().name,
+        faculty: _SLUG,
         date:   new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     });
     saveAnn(anns);
